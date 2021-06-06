@@ -1,18 +1,32 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_tolower.c                                       :+:      :+:    :+:   */
+/*   ft_strlcpy.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mhaddi <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2019/10/17 22:47:46 by mhaddi            #+#    #+#             */
-/*   Updated: 2019/10/25 21:04:42 by mhaddi           ###   ########.fr       */
+/*   Created: 2019/10/14 13:47:15 by mhaddi            #+#    #+#             */
+/*   Updated: 2021/06/06 19:04:21 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
+#include "../pipex.h"
 
-int	ft_tolower(int c)
+size_t	ft_strlcpy(char *dst, const char *src, size_t size)
 {
-	return (ft_isupper(c)) ? c + 32 : c;
+	size_t	srclen;
+
+	srclen = ft_strlen(src);
+	if (!dst && !size)
+		return (srclen);
+	while (size > 1)
+	{
+		if (*src == '\0')
+			break ;
+		*(dst++) = *(src++);
+		size--;
+	}
+	if (size)
+		*dst = '\0';
+	return (srclen);
 }

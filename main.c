@@ -6,55 +6,72 @@
 /*   By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/04 16:50:38 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/06 17:31:29 by mhaddi           ###   ########.fr       */
+/*   Updated: 2021/06/06 20:35:58 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "pipex.h"
 #include <stdlib.h>
-#include <stdio.h>
-#include <sys/fcntl.h>
-#include <sys/wait.h>
-#include <unistd.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include "libft/libft.h"
 
 int	main(int argc, char **argv, char **envp)
 {
-	(void)argc;
-
-	// TO-DO: ERROR MANAGEMENT
-	/*
-	if (argc != 5)
-	{
-		perror("Error\nThere should be five arguments:\n./pipex file1 first_cmd cmd2 file2");
-		exit(EXIT_FAILURE);
-	}
-	*/
-
-	// find first and second cmds in env paths
-	char **first_cmd = ft_split(argv[2], ' ');
-	char **second_cmd = ft_split(argv[3], ' ');
-	int i = 0;
-	int first_cmd_path_fd = -1;
-	int second_cmd_path_fd = -1;
+	char **first_cmd;
+	char **second_cmd;
+	int i;
+	int first_cmd_path_fd;
+	int second_cmd_path_fd;
 	char *first_cmd_full_path;
 	char *second_cmd_full_path;
+	bool path_var_found;
+
+	/**
+	 * Check number of arguments.
+	 */
+	if (argc != 5)
+		ft_raise_error(EINVAL,
+				"There should be 4 arguments to your program, \
+				e.g.:\n./pipex file1 cmd1 cmd2 file2\nError");
+
+	/**
+	 * Get the first command and its parameters if there are any.
+	 */
+	first_cmd = ft_split(argv[2], ' ');
+
+	/**
+	 * Get the second command and its parameters if there are any.
+	 */
+	second_cmd = ft_split(argv[3], ' ');
+
+	/**
+	 * Loop through the environment variables until PATH is found.
+	 * Then loop through the PATH paths, until the path for each
+	 * command is found.
+	 * (Path is checked with open(), if a valid fd is returned,
+	 * it means that the file was succesfully opened (command is found.))
+	 */
+	i = 0;
+	first_cmd_path_fd = -1;
+	second_cmd_path_fd = -1;
 	while (envp[i]) {
-		char **env_var = ft_split(envp[i], '='); // split var name and its paths value
-		if (ft_strncmp("PATH", env_var[0], 5) == 0) {
-			char **paths = ft_split(env_var[1], ':'); // split all paths in var
+		char **env_var = ft_split(envp[i], '=');
+		path_var_found = ft_strncmp("PATH", env_var[0], 5) == 0;
+		if (path_var_found) {
+			char **paths = ft_split(env_var[1], ':');
 			int j = 0;
-			while (paths[j]) { // lookup actual path for each command using open
+			while (paths[j]) {
 				if (first_cmd_path_fd == -1)
 				{
-					first_cmd_full_path = ft_strjoin(paths[j], ft_strjoin("/", first_cmd[0]));
+					char *slash_cmd = ft_strjoin("/", first_cmd[0]);
+					first_cmd_full_path = ft_strjoin(paths[j], slash_cmd);
+					free(slash_cmd);
 					first_cmd_path_fd = open(first_cmd_full_path, O_RDONLY);
 					close(first_cmd_path_fd); // not needed anymore
 				}
 				if (second_cmd_path_fd == -1)
 				{
-					second_cmd_full_path = ft_strjoin(paths[j], ft_strjoin("/", second_cmd[0]));
+					char *slash_cmd = ft_strjoin("/", second_cmd[0]);
+					second_cmd_full_path = ft_strjoin(paths[j], slash_cmd);
+					free(slash_cmd);
 					second_cmd_path_fd = open(second_cmd_full_path, O_RDONLY);
 					close(second_cmd_path_fd); // not needed anymore
 				}
@@ -62,16 +79,22 @@ int	main(int argc, char **argv, char **envp)
 					break ;
 				j++;
 			}
+			ft_free_double_pointer(paths);
 		}
+		ft_free_double_pointer(env_var);
 		if (first_cmd_path_fd != -1 && second_cmd_path_fd != -1)
+			break ;
+		else if (path_var_found)
 			break ;
 		i++;
 	}
-
+	free(first_cmd);
+	free(second_cmd);
 	if (first_cmd_path_fd == -1 || second_cmd_path_fd == -1)
 	{
-		fprintf(stderr, "cmd not found");
-		exit(EXIT_FAILURE);
+		free(first_cmd_full_path);
+		free(second_cmd_full_path);
+		ft_raise_error(EINVAL, "Command not found.\nError");
 	}
 
 	// RELASE stdin AND OPEN ARGV[1]
@@ -96,6 +119,7 @@ int	main(int argc, char **argv, char **envp)
 	}
 	else // parent process
 	{
+		free(first_cmd_full_path);
 		pid_t child_b = fork();
 		if (child_b == 0) // child process
 		{
@@ -108,6 +132,8 @@ int	main(int argc, char **argv, char **envp)
 															// from stdin (path_fd 0)
 			// exit() not needed since execve replaces the process with another program
 		}
+		else // parent process
+			free(second_cmd_full_path);
 		//else { // parent process
 		//	dup2(pipe_fd[0], 0);
 		//	close(pipe_fd[1]); // we don't wanna write again into the pipe

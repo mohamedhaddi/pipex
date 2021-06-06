@@ -1,19 +1,26 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_putstr_fd.c                                     :+:      :+:    :+:   */
+/*   ft_strlen.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mhaddi <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2019/10/23 16:15:11 by mhaddi            #+#    #+#             */
-/*   Updated: 2019/10/31 21:30:02 by mhaddi           ###   ########.fr       */
+/*   Created: 2019/10/14 13:28:44 by mhaddi            #+#    #+#             */
+/*   Updated: 2021/06/06 19:04:26 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
+#include "../pipex.h"
 
-void	ft_putstr_fd(char *s, int fd)
+size_t	ft_strlen(const char *s)
 {
-	if (s)
-		write(fd, s, ft_strlen(s));
+	size_t	i;
+
+	i = 0;
+	while (*s != '\0')
+	{
+		s++;
+		i++;
+	}
+	return (i);
 }

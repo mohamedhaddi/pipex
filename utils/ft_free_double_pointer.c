@@ -1,18 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_putchar_fd.c                                    :+:      :+:    :+:   */
+/*   ft_free_double_pointer.c                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mhaddi <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2019/10/23 15:41:34 by mhaddi            #+#    #+#             */
-/*   Updated: 2019/10/31 21:29:47 by mhaddi           ###   ########.fr       */
+/*   Created: 2021/06/06 19:16:02 by mhaddi            #+#    #+#             */
+/*   Updated: 2021/06/06 19:17:18 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
+#include "../pipex.h"
 
-void	ft_putchar_fd(char c, int fd)
+void    ft_free_double_pointer(char **ptr)
 {
-	write(fd, &c, 1);
+    int i;
+
+    i = 0;
+    while (ptr[i])
+        free(ptr[i++]);
+    free(ptr);
 }

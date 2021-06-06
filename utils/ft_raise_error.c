@@ -1,24 +1,20 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_memcmp.c                                        :+:      :+:    :+:   */
+/*   ft_raise_error.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mhaddi <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2019/10/14 00:19:52 by mhaddi            #+#    #+#             */
-/*   Updated: 2019/11/04 15:09:27 by mhaddi           ###   ########.fr       */
+/*   Created: 2021/06/06 19:18:17 by mhaddi            #+#    #+#             */
+/*   Updated: 2021/06/06 19:26:58 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
+#include "../pipex.h"
 
-int		ft_memcmp(const void *s1, const void *s2, size_t n)
+void    ft_raise_error(int errno_val, char *error_msg)
 {
-	while (n)
-	{
-		if (*(unsigned char *)(s1++) != *(unsigned char *)(s2++))
-			return (*(unsigned char *)(s1 - 1) - *(unsigned char *)(s2 - 1));
-		n--;
-	}
-	return (0);
+    errno = errno_val;
+    perror(error_msg);
+    exit(EXIT_FAILURE);
 }

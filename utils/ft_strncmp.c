@@ -1,22 +1,24 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_putendl_fd.c                                    :+:      :+:    :+:   */
+/*   ft_strncmp.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mhaddi <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2019/10/23 16:30:07 by mhaddi            #+#    #+#             */
-/*   Updated: 2019/10/31 21:29:52 by mhaddi           ###   ########.fr       */
+/*   Created: 2019/10/16 15:47:26 by mhaddi            #+#    #+#             */
+/*   Updated: 2021/06/06 19:04:32 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
+#include "../pipex.h"
 
-void	ft_putendl_fd(char *s, int fd)
+int	ft_strncmp(const char *s1, const char *s2, size_t n)
 {
-	if (s)
+	while (n && (*s1 || *s2))
 	{
-		write(fd, s, ft_strlen(s));
-		write(fd, "\n", 1);
+		if (*(unsigned char *)s1++ != *(unsigned char *)s2++)
+			return (*(unsigned char *)(s1 - 1) - *(unsigned char *)(s2 - 1));
+		n--;
 	}
+	return (0);
 }
