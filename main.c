@@ -6,7 +6,7 @@
 /*   By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/04 16:50:38 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/06 16:39:21 by mhaddi           ###   ########.fr       */
+/*   Updated: 2021/06/06 17:31:29 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,6 +77,7 @@ int	main(int argc, char **argv, char **envp)
 	// RELASE stdin AND OPEN ARGV[1]
 	close(0); // release fd 0 so that it no longer refers to any file and may be reused
 	open(argv[1], O_RDONLY); // open file with fd 0
+	int outfile_fd = open(argv[4], O_WRONLY | O_TRUNC | O_CREAT, 0644);
 
 	// CREATE A PIPE
 	int pipe_fd[2];
@@ -85,20 +86,37 @@ int	main(int argc, char **argv, char **envp)
 					// one for the write end of the pipe pipe_fd[1]
 					// or -1 in case of error
 
-	if (fork() == 0)
+	pid_t child_a = fork();
+	if (child_a == 0) // child process
 	{
 		dup2(pipe_fd[1], 1); // remap output back to parent
 		execve(first_cmd_full_path, first_cmd, envp);	// by default, programs reads
 														// from stdin (path_fd 0)
 		// exit() not needed since execve replaces the process with another program
 	}
+	else // parent process
+	{
+		pid_t child_b = fork();
+		if (child_b == 0) // child process
+		{
+			// remap output from previous child to input
+			dup2(pipe_fd[0], 0);
+			close(pipe_fd[1]); // we don't wanna write again into the pipe
+			close(pipe_fd[0]); // not necessary, it's just the read end
+			dup2(outfile_fd, 1);
+			execve(second_cmd_full_path, second_cmd, envp); // by default, programs reads
+															// from stdin (path_fd 0)
+			// exit() not needed since execve replaces the process with another program
+		}
+		//else { // parent process
+		//	dup2(pipe_fd[0], 0);
+		//	close(pipe_fd[1]); // we don't wanna write again into the pipe
+		//	close(pipe_fd[0]); // not necessary, it's just the read end
+		//}
+	}
 
-	// remap output from previous child to input
-	dup2(pipe_fd[0], 0);
-	close(pipe_fd[1]); // we don't wanna write again into the pipe
-	close(pipe_fd[0]); // not necessary, it's just the read end
-	execve(second_cmd_full_path, second_cmd, envp); // by default, programs reads
-													// from stdin (path_fd 0)
+	//shared code
+	//printf("test shared\n");
 
 	return (0);
 }
