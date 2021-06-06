@@ -6,7 +6,7 @@
 /*   By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/04 16:50:38 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/06 00:17:51 by mhaddi           ###   ########.fr       */
+/*   Updated: 2021/06/06 16:39:21 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,11 +50,13 @@ int	main(int argc, char **argv, char **envp)
 				{
 					first_cmd_full_path = ft_strjoin(paths[j], ft_strjoin("/", first_cmd[0]));
 					first_cmd_path_fd = open(first_cmd_full_path, O_RDONLY);
+					close(first_cmd_path_fd); // not needed anymore
 				}
 				if (second_cmd_path_fd == -1)
 				{
 					second_cmd_full_path = ft_strjoin(paths[j], ft_strjoin("/", second_cmd[0]));
 					second_cmd_path_fd = open(second_cmd_full_path, O_RDONLY);
+					close(second_cmd_path_fd); // not needed anymore
 				}
 				if (first_cmd_path_fd != -1 && second_cmd_path_fd != -1)
 					break ;
@@ -72,43 +74,31 @@ int	main(int argc, char **argv, char **envp)
 		exit(EXIT_FAILURE);
 	}
 
-	close(second_cmd_path_fd); // not needed anymore
-	close(first_cmd_path_fd); // not needed anymore
-
 	// RELASE stdin AND OPEN ARGV[1]
 	close(0); // release fd 0 so that it no longer refers to any file and may be reused
 	open(argv[1], O_RDONLY); // open file with fd 0
 
 	// CREATE A PIPE
-	// Creates a pipe with file descriptors Eg. input = 3
-	// and output = 4 (Since, 0,1 and 2 are not available)
 	int pipe_fd[2];
-	pipe(pipe_fd);
+	pipe(pipe_fd);	// returns two open fds in pipe_fd[]:
+					// one for the read end of the pipe pipe_fd[0]
+					// one for the write end of the pipe pipe_fd[1]
+					// or -1 in case of error
 
 	if (fork() == 0)
 	{
 		dup2(pipe_fd[1], 1); // remap output back to parent
-		execve(first_cmd_full_path, first_cmd, envp); // by default, programs reads
+		execve(first_cmd_full_path, first_cmd, envp);	// by default, programs reads
 														// from stdin (path_fd 0)
+		// exit() not needed since execve replaces the process with another program
 	}
 
 	// remap output from previous child to input
 	dup2(pipe_fd[0], 0);
-	close(pipe_fd[1]);
-
-	execve(second_cmd_full_path, second_cmd, envp);
-
-	//else
-	//{
-	//	// parent process
-	//	//close(1); // release fd 1
-	//	//close(pipe_fd[0]); // close pipe fds since useful one is duplicated
-	//	//close(pipe_fd[1]);
-	//	//close(1);
-	//	//dup(pipe_fd[1]); // create duplicate of pipe writing end fd to fd 1
-	//	execve(first_cmd_full_path, first_cmd, envp); // by default, programs reads
-	//													// from stdin (path_fd 0)
-	//}
+	close(pipe_fd[1]); // we don't wanna write again into the pipe
+	close(pipe_fd[0]); // not necessary, it's just the read end
+	execve(second_cmd_full_path, second_cmd, envp); // by default, programs reads
+													// from stdin (path_fd 0)
 
 	return (0);
 }
