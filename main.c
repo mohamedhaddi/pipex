@@ -6,7 +6,7 @@
 /*   By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/04 16:50:38 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/06 20:35:58 by mhaddi           ###   ########.fr       */
+/*   Updated: 2021/06/06 21:57:42 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,10 @@ int	main(int argc, char **argv, char **envp)
 	char *first_cmd_full_path;
 	char *second_cmd_full_path;
 	bool path_var_found;
+	char **env_var;
+	char **paths;
+	int j;
+	char *slash_cmd;
 
 	/**
 	 * Check number of arguments.
@@ -46,34 +50,34 @@ int	main(int argc, char **argv, char **envp)
 	 * Loop through the environment variables until PATH is found.
 	 * Then loop through the PATH paths, until the path for each
 	 * command is found.
-	 * (Path is checked with open(), if a valid fd is returned,
+	 * (Path is checked with open(), if a valid FD is returned,
 	 * it means that the file was succesfully opened (command is found.))
 	 */
 	i = 0;
 	first_cmd_path_fd = -1;
 	second_cmd_path_fd = -1;
 	while (envp[i]) {
-		char **env_var = ft_split(envp[i], '=');
+		env_var = ft_split(envp[i], '=');
 		path_var_found = ft_strncmp("PATH", env_var[0], 5) == 0;
 		if (path_var_found) {
-			char **paths = ft_split(env_var[1], ':');
-			int j = 0;
+			paths = ft_split(env_var[1], ':');
+			j = 0;
 			while (paths[j]) {
 				if (first_cmd_path_fd == -1)
 				{
-					char *slash_cmd = ft_strjoin("/", first_cmd[0]);
+					slash_cmd = ft_strjoin("/", first_cmd[0]);
 					first_cmd_full_path = ft_strjoin(paths[j], slash_cmd);
 					free(slash_cmd);
 					first_cmd_path_fd = open(first_cmd_full_path, O_RDONLY);
-					close(first_cmd_path_fd); // not needed anymore
+					close(first_cmd_path_fd);
 				}
 				if (second_cmd_path_fd == -1)
 				{
-					char *slash_cmd = ft_strjoin("/", second_cmd[0]);
+					slash_cmd = ft_strjoin("/", second_cmd[0]);
 					second_cmd_full_path = ft_strjoin(paths[j], slash_cmd);
 					free(slash_cmd);
 					second_cmd_path_fd = open(second_cmd_full_path, O_RDONLY);
-					close(second_cmd_path_fd); // not needed anymore
+					close(second_cmd_path_fd);
 				}
 				if (first_cmd_path_fd != -1 && second_cmd_path_fd != -1)
 					break ;
@@ -97,10 +101,27 @@ int	main(int argc, char **argv, char **envp)
 		ft_raise_error(EINVAL, "Command not found.\nError");
 	}
 
-	// RELASE stdin AND OPEN ARGV[1]
-	close(0); // release fd 0 so that it no longer refers to any file and may be reused
-	open(argv[1], O_RDONLY); // open file with fd 0
+	/**
+	 * Release STDIN (FD 0) so that it no longer refers to any file,
+	 * in order to make the next open() call on the input file return
+	 * FD 0 (lowest FD available).
+	 */
+	close(0);
+	int infile_fd = open(argv[1], O_RDONLY);
+	if (infile_fd == -1)
+	{
+		free(first_cmd_full_path);
+		free(second_cmd_full_path);
+		ft_raise_error(ENOENT, "Input file invalid.\nError");
+	}
+
 	int outfile_fd = open(argv[4], O_WRONLY | O_TRUNC | O_CREAT, 0644);
+	if (outfile_fd == -1)
+	{
+		free(first_cmd_full_path);
+		free(second_cmd_full_path);
+		ft_raise_error(ENOENT, "Couldn't open/create output file.\nError");
+	}
 
 	// CREATE A PIPE
 	int pipe_fd[2];
