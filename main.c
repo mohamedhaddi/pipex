@@ -6,7 +6,7 @@
 /*   By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/04 16:50:38 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/07 15:46:24 by mhaddi           ###   ########.fr       */
+/*   Updated: 2021/06/07 17:15:53 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -240,6 +240,11 @@ int	main(int argc, char **argv, char **envp)
 	 * to FD 0 (stdin), and duplicate the outfile_fd to FD 1 (stdout), so now when
 	 * execve() runs the second command, it reads from the read end of the pipe,
 	 * and outputs to outfile_fd.
+	 *
+	 * We perform a wait() for the childs termination in the parent process because
+	 * it allows the system to release the resources associated with the childs after
+	 * terminating; if a wait is not performed, then the terminated child remains
+	 * in a "zombie" state.
 	 */
 	child_a = fork();
 	if (child_a == -1)
@@ -324,6 +329,12 @@ int	main(int argc, char **argv, char **envp)
 		}
 		else
 		{
+			if (wait(NULL) == -1)
+			{
+				free(second_cmd);
+				free(second_cmd_full_path);
+				ft_raise_error(errno, "waitpid() failed.\nError");
+			}
 			free(second_cmd);
 			free(second_cmd_full_path);
 		}
