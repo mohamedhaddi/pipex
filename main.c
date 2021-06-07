@@ -6,7 +6,7 @@
 /*   By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/04 16:50:38 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/07 03:06:50 by mhaddi           ###   ########.fr       */
+/*   Updated: 2021/06/07 15:46:24 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -169,7 +169,7 @@ int	main(int argc, char **argv, char **envp)
 	}
 
 	/**
-	 * Release STDIN (FD 0) so that it no longer refers to any file,
+	 * Release stdin (FD 0) so that it no longer refers to any file,
 	 * in order to make the next open() call on the input file return
 	 * FD 0 (lowest FD available).
 	 */
@@ -220,6 +220,27 @@ int	main(int argc, char **argv, char **envp)
 		ft_raise_error(errno, "pipe() failed.\nError");
 	}
 
+	/**
+	 * Fork a child (child_a) in order to execute the first command.
+	 * (fork() returns 0 to the child process, and the PID of the child
+	 * to the parent process; otherwise, -1 is returned to the parent
+	 * process on error.)
+	 *
+	 * Then, inside the child process, duplicate the pipe's write end FD
+	 * to FD 1 (stdout), so that the output of the command executed by execve(),
+	 * if it originally goes to stdout, will go into the write end of the pipe.
+	 *
+	 * The program ran by execve() reads from stdin (FD 0) by default, which is
+	 * now infile_fd.
+	 * exit() is not needed in this case since execve() replaces its current process
+	 * (the child process) with the exectued program.
+	 * 
+	 * In the parent process, we then fork a new child (child_b) to run the second
+	 * command, then, in the new child process, we duplicate the pipe's read end FD
+	 * to FD 0 (stdin), and duplicate the outfile_fd to FD 1 (stdout), so now when
+	 * execve() runs the second command, it reads from the read end of the pipe,
+	 * and outputs to outfile_fd.
+	 */
 	child_a = fork();
 	if (child_a == -1)
 	{
@@ -229,9 +250,9 @@ int	main(int argc, char **argv, char **envp)
 		free(second_cmd_full_path);
 		ft_raise_error(errno, "fork() failed.\nError");
 	}
-	else if (child_a == 0) // child process
+	else if (child_a == 0)
 	{
-		dup2_fd = dup2(pipe_fd[1], 1); // remap output back to parent
+		dup2_fd = dup2(pipe_fd[1], 1);
 		if (dup2_fd == -1)
 		{
 			free(first_cmd);
@@ -241,9 +262,6 @@ int	main(int argc, char **argv, char **envp)
 			ft_raise_error(errno, "dup2() failed.\nError");
 		}
 		exec_status = execve(first_cmd_full_path, first_cmd, envp);
-		/** by default, programs reads from stdin (path_fd 0) exit()
-		 * not needed since execve replaces the process with another program
-		 */
 		if (exec_status == -1)
 		{
 			free(first_cmd);
@@ -253,7 +271,7 @@ int	main(int argc, char **argv, char **envp)
 			ft_raise_error(errno, "execve() failed.\nError");
 		}
 	}
-	else // parent process
+	else
 	{
 		child_b = fork();
 		if (child_b == -1)
@@ -266,9 +284,8 @@ int	main(int argc, char **argv, char **envp)
 		}
 		free(first_cmd);
 		free(first_cmd_full_path);
-		if (child_b == 0) // child process
+		if (child_b == 0)
 		{
-			// remap output from previous child to input
 			dup2_fd = dup2(pipe_fd[0], 0);
 			if (dup2_fd == -1)
 			{
@@ -276,14 +293,14 @@ int	main(int argc, char **argv, char **envp)
 				free(second_cmd_full_path);
 				ft_raise_error(errno, "dup2() failed.\nError");
 			}
-			close_status = close(pipe_fd[1]); // we don't wanna write again into the pipe
+			close_status = close(pipe_fd[1]);
 			if (close_status == -1)
 			{
 				free(second_cmd);
 				free(second_cmd_full_path);
 				ft_raise_error(errno, "close() failed.\nError");
 			}
-			close_status = close(pipe_fd[0]); // not necessary, it's just the read end
+			close_status = close(pipe_fd[0]);
 			if (close_status == -1)
 			{
 				free(second_cmd);
@@ -298,9 +315,6 @@ int	main(int argc, char **argv, char **envp)
 				ft_raise_error(errno, "dup2() failed.\nError");
 			}
 			exec_status = execve(second_cmd_full_path, second_cmd, envp);
-			/** by default, programs reads from stdin (path_fd 0) exit()
-			 * not needed since execve replaces the process with another program
-			 */
 			if (exec_status == -1)
 			{
 				free(second_cmd);
@@ -308,7 +322,7 @@ int	main(int argc, char **argv, char **envp)
 				ft_raise_error(errno, "execve() failed.\nError");
 			}
 		}
-		else // parent process
+		else
 		{
 			free(second_cmd);
 			free(second_cmd_full_path);
