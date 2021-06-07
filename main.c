@@ -6,11 +6,12 @@
 /*   By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/04 16:50:38 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/07 00:24:24 by mhaddi           ###   ########.fr       */
+/*   Updated: 2021/06/07 02:49:19 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
+#include <stdlib.h>
 
 int	main(int argc, char **argv, char **envp)
 {
@@ -69,6 +70,8 @@ int	main(int argc, char **argv, char **envp)
 	i = 0;
 	first_cmd_path_fd = -1;
 	second_cmd_path_fd = -1;
+	first_cmd_full_path = malloc(sizeof(first_cmd_full_path));
+	second_cmd_full_path = malloc(sizeof(second_cmd_full_path));
 	while (envp[i]) {
 		env_var = ft_split(envp[i], '=');
 		if (env_var == NULL)
@@ -98,8 +101,7 @@ int	main(int argc, char **argv, char **envp)
 						ft_free_double_pointer(second_cmd);
 						ft_free_double_pointer(env_var);
 						ft_free_double_pointer(paths);
-						if (second_cmd_full_path)
-							free(second_cmd_full_path);
+						free(second_cmd_full_path);
 						ft_raise_error(ENOMEM, "ft_strjoin() failed.\nError");
 					}
 					first_cmd_full_path = ft_strjoin(paths[j], slash_cmd);
@@ -110,22 +112,12 @@ int	main(int argc, char **argv, char **envp)
 						ft_free_double_pointer(env_var);
 						ft_free_double_pointer(paths);
 						free(slash_cmd);
-						if (second_cmd_full_path)
-							free(second_cmd_full_path);
+						free(second_cmd_full_path);
 						ft_raise_error(ENOMEM, "ft_strjoin() failed.\nError");
 					}
 					free(slash_cmd);
 					first_cmd_path_fd = open(first_cmd_full_path, O_RDONLY);
-					close_status = close(first_cmd_path_fd);
-					if (close_status == -1)
-					{
-						ft_free_double_pointer(env_var);
-						ft_free_double_pointer(paths);
-						free(first_cmd_full_path);
-						if (second_cmd_full_path)
-							free(second_cmd_full_path);
-						ft_raise_error(errno, "close() failed.\nError");
-					}
+					close(first_cmd_path_fd);
 				}
 				if (second_cmd_path_fd == -1)
 				{
@@ -136,8 +128,7 @@ int	main(int argc, char **argv, char **envp)
 						ft_free_double_pointer(second_cmd);
 						ft_free_double_pointer(env_var);
 						ft_free_double_pointer(paths);
-						if (first_cmd_full_path)
-							free(first_cmd_full_path);
+						free(first_cmd_full_path);
 						ft_raise_error(ENOMEM, "ft_strjoin() failed.\nError");
 					}
 					second_cmd_full_path = ft_strjoin(paths[j], slash_cmd);
@@ -148,22 +139,12 @@ int	main(int argc, char **argv, char **envp)
 						ft_free_double_pointer(env_var);
 						ft_free_double_pointer(paths);
 						free(slash_cmd);
-						if (first_cmd_full_path)
-							free(first_cmd_full_path);
+						free(first_cmd_full_path);
 						ft_raise_error(ENOMEM, "ft_strjoin() failed.\nError");
 					}
 					free(slash_cmd);
 					second_cmd_path_fd = open(second_cmd_full_path, O_RDONLY);
-					close(second_cmd_path_fd);
-					if (close_status == -1)
-					{
-						ft_free_double_pointer(env_var);
-						ft_free_double_pointer(paths);
-						if (first_cmd_full_path)
-							free(first_cmd_full_path);
-						free(second_cmd_full_path);
-						ft_raise_error(errno, "close() failed.\nError");
-					}
+					close_status = close(second_cmd_path_fd);
 				}
 				if (first_cmd_path_fd != -1 && second_cmd_path_fd != -1)
 					break ;
@@ -178,10 +159,10 @@ int	main(int argc, char **argv, char **envp)
 			break ;
 		i++;
 	}
-	free(first_cmd);
-	free(second_cmd);
 	if (first_cmd_path_fd == -1 || second_cmd_path_fd == -1)
 	{
+		free(first_cmd);
+		free(second_cmd);
 		free(first_cmd_full_path);
 		free(second_cmd_full_path);
 		ft_raise_error(EINVAL, "Command not found.\nError");
@@ -195,6 +176,8 @@ int	main(int argc, char **argv, char **envp)
 	close_status = close(0);
 	if (close_status == -1)
 	{
+		free(first_cmd);
+		free(second_cmd);
 		free(first_cmd_full_path);
 		free(second_cmd_full_path);
 		ft_raise_error(errno, "close() failed.\nError");
@@ -203,6 +186,8 @@ int	main(int argc, char **argv, char **envp)
 	int infile_fd = open(argv[1], O_RDONLY);
 	if (infile_fd == -1)
 	{
+		free(first_cmd);
+		free(second_cmd);
 		free(first_cmd_full_path);
 		free(second_cmd_full_path);
 		ft_raise_error(ENOENT, "Input file invalid.\nError");
@@ -211,6 +196,8 @@ int	main(int argc, char **argv, char **envp)
 	int outfile_fd = open(argv[4], O_WRONLY | O_TRUNC | O_CREAT, 0644);
 	if (outfile_fd == -1)
 	{
+		free(first_cmd);
+		free(second_cmd);
 		free(first_cmd_full_path);
 		free(second_cmd_full_path);
 		ft_raise_error(ENOENT, "Couldn't open/create output file.\nError");
@@ -226,6 +213,8 @@ int	main(int argc, char **argv, char **envp)
 	pipe_status = pipe(pipe_fd);
 	if (pipe_status == -1)
 	{
+		free(first_cmd);
+		free(second_cmd);
 		free(first_cmd_full_path);
 		free(second_cmd_full_path);
 		ft_raise_error(errno, "pipe() failed.\nError");
@@ -234,6 +223,8 @@ int	main(int argc, char **argv, char **envp)
 	child_a = fork();
 	if (child_a == -1)
 	{
+		free(first_cmd);
+		free(second_cmd);
 		free(first_cmd_full_path);
 		free(second_cmd_full_path);
 		ft_raise_error(errno, "fork() failed.\nError");
@@ -243,6 +234,8 @@ int	main(int argc, char **argv, char **envp)
 		dup2_fd = dup2(pipe_fd[1], 1); // remap output back to parent
 		if (dup2_fd == -1)
 		{
+			free(first_cmd);
+			free(second_cmd);
 			free(first_cmd_full_path);
 			free(second_cmd_full_path);
 			ft_raise_error(errno, "dup2() failed.\nError");
@@ -253,6 +246,8 @@ int	main(int argc, char **argv, char **envp)
 		 */
 		if (exec_status == -1)
 		{
+			free(first_cmd);
+			free(second_cmd);
 			free(first_cmd_full_path);
 			free(second_cmd_full_path);
 			ft_raise_error(errno, "execve() failed.\nError");
@@ -263,10 +258,13 @@ int	main(int argc, char **argv, char **envp)
 		child_b = fork();
 		if (child_b == -1)
 		{
+			free(first_cmd);
+			free(second_cmd);
 			free(first_cmd_full_path);
 			free(second_cmd_full_path);
 			ft_raise_error(errno, "fork() failed.\nError");
 		}
+		free(first_cmd);
 		free(first_cmd_full_path);
 		if (child_b == 0) // child process
 		{
@@ -274,24 +272,28 @@ int	main(int argc, char **argv, char **envp)
 			dup2_fd = dup2(pipe_fd[0], 0);
 			if (dup2_fd == -1)
 			{
+				free(second_cmd);
 				free(second_cmd_full_path);
 				ft_raise_error(errno, "dup2() failed.\nError");
 			}
 			close_status = close(pipe_fd[1]); // we don't wanna write again into the pipe
 			if (close_status == -1)
 			{
+				free(second_cmd);
 				free(second_cmd_full_path);
 				ft_raise_error(errno, "close() failed.\nError");
 			}
 			close_status = close(pipe_fd[0]); // not necessary, it's just the read end
 			if (close_status == -1)
 			{
+				free(second_cmd);
 				free(second_cmd_full_path);
 				ft_raise_error(errno, "close() failed.\nError");
 			}
 			dup2_fd = dup2(outfile_fd, 1);
 			if (dup2_fd == -1)
 			{
+				free(second_cmd);
 				free(second_cmd_full_path);
 				ft_raise_error(errno, "dup2() failed.\nError");
 			}
@@ -301,12 +303,16 @@ int	main(int argc, char **argv, char **envp)
 			 */
 			if (exec_status == -1)
 			{
+				free(second_cmd);
 				free(second_cmd_full_path);
 				ft_raise_error(errno, "execve() failed.\nError");
 			}
 		}
 		else // parent process
+		{
+			free(second_cmd);
 			free(second_cmd_full_path);
+		}
 	}
 
 	/**
