@@ -6,7 +6,7 @@
 /*   By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/04 16:50:38 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/07 02:49:19 by mhaddi           ###   ########.fr       */
+/*   Updated: 2021/06/07 03:00:52 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,8 +40,8 @@ int	main(int argc, char **argv, char **envp)
 	 */
 	if (argc != 5)
 		ft_raise_error(EINVAL,
-				"There should be 4 arguments to your program, \
-				e.g.:\n./pipex file1 cmd1 cmd2 file2\nError");
+				"There should be 4 arguments to your program, "
+				"e.g.:\n./pipex file1 cmd1 cmd2 file2\nError");
 
 	/**
 	 * Get the first command and its parameters if there are any.
