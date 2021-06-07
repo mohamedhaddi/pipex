@@ -6,7 +6,7 @@
 /*   By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/04 16:50:38 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/07 03:00:52 by mhaddi           ###   ########.fr       */
+/*   Updated: 2021/06/07 03:06:50 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -144,7 +144,7 @@ int	main(int argc, char **argv, char **envp)
 					}
 					free(slash_cmd);
 					second_cmd_path_fd = open(second_cmd_full_path, O_RDONLY);
-					close_status = close(second_cmd_path_fd);
+					close(second_cmd_path_fd);
 				}
 				if (first_cmd_path_fd != -1 && second_cmd_path_fd != -1)
 					break ;
