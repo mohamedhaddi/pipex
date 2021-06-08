@@ -6,14 +6,14 @@
 /*   By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/06 19:16:02 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/08 15:57:21 by mhaddi           ###   ########.fr       */
+/*   Updated: 2021/06/08 19:28:41 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../pipex.h"
 
-void    free_and_init(char *ptr)
+void    free_and_init(char *ptr, int *state)
 {
     free(ptr);
-    ptr = NULL;
+    *state = 0;
 }

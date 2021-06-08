@@ -6,7 +6,7 @@
 #    By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/05/21 07:20:17 by mhaddi            #+#    #+#              #
-#    Updated: 2021/06/08 16:23:14 by mhaddi           ###   ########.fr        #
+#    Updated: 2021/06/08 18:54:20 by mhaddi           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -30,7 +30,7 @@ NAME		= pipex
 all:		$(NAME)
 
 $(NAME):	
-			$(CC) $(CFLAGS) $(SRCS) -o $(NAME)
+			$(CC) $(CFLAGS) $(DFLAGS) $(SRCS) -o $(NAME)
 
 clean:		
 			$(RM) $(NAME)

@@ -6,51 +6,57 @@
 /*   By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/04 16:50:38 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/08 16:16:57 by mhaddi           ###   ########.fr       */
+/*   Updated: 2021/06/08 19:36:26 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
-#include <stdlib.h>
 
 typedef struct	s_strings
 {
 	char **first_cmd;
+	int first_cmd_state;
 	char **second_cmd;
+	int second_cmd_state;
 	char *first_cmd_full_path;
+	int first_cmd_full_path_state;
 	char *second_cmd_full_path;
+	int second_cmd_full_path_state;
 	char **env_var;
+	int env_var_state;
 	char **paths;
+	int	paths_state;
 	char *slash_cmd;
+	int	slash_cmd_state;
 }				t_strings;
 
-void	init_all_strings(t_strings *strings)
+void	init_all_strings_states(t_strings *strings)
 {
-	strings->first_cmd = NULL;
-	strings->second_cmd = NULL;
-	strings->first_cmd_full_path = NULL;
-	strings->second_cmd_full_path = NULL;
-	strings->env_var = NULL;
-	strings->paths = NULL;
-	strings->slash_cmd = NULL;
+	strings->first_cmd_state = 0;
+	strings->second_cmd_state = 0;
+	strings->first_cmd_full_path_state = 0;
+	strings->second_cmd_full_path_state = 0;
+	strings->env_var_state = 0;
+	strings->paths_state = 0;
+	strings->slash_cmd_state = 0;
 }
 
 void	free_all_strings(t_strings *strings)
 {
-	if (strings->first_cmd)
-		free_double_pointer_and_init(strings->first_cmd);
-	if (strings->second_cmd)
-		free_double_pointer_and_init(strings->second_cmd);
-	if (strings->first_cmd_full_path)
-		free_and_init(strings->first_cmd_full_path);
-	if (strings->second_cmd_full_path)
-		free_and_init(strings->second_cmd_full_path);
-	if (strings->env_var)
-		free_double_pointer_and_init(strings->env_var);
-	if (strings->paths)
-		free_double_pointer_and_init(strings->paths);
-	if (strings->slash_cmd)
-		free_and_init(strings->slash_cmd);
+	if (strings->first_cmd_state)
+		free_double_pointer_and_init(strings->first_cmd, &strings->first_cmd_state);
+	if (strings->second_cmd_state)
+		free_double_pointer_and_init(strings->second_cmd, &strings->second_cmd_state);
+	if (strings->first_cmd_full_path_state)
+		free_and_init(strings->first_cmd_full_path, &strings->first_cmd_full_path_state);
+	if (strings->second_cmd_full_path_state)
+		free_and_init(strings->second_cmd_full_path, &strings->second_cmd_full_path_state);
+	if (strings->env_var_state)
+		free_double_pointer_and_init(strings->env_var, &strings->env_var_state);
+	if (strings->paths_state)
+		free_double_pointer_and_init(strings->paths, &strings->paths_state);
+	if (strings->slash_cmd_state)
+		free_and_init(strings->slash_cmd, &strings->slash_cmd_state);
 }
 
 void	check_error(bool is_error, int errno_val, char *error_msg, t_strings *strings)
@@ -78,7 +84,7 @@ int	main(int argc, char **argv, char **envp)
 	pid_t child_b;
 	int close_status;
 
-	init_all_strings(&strings);
+	init_all_strings_states(&strings);
 
 	/**
 	 * Check number of arguments.
@@ -91,12 +97,14 @@ int	main(int argc, char **argv, char **envp)
 	 */
 	strings.first_cmd = ft_split(argv[2], ' ');
 	check_error(strings.first_cmd == NULL, ENOMEM, "ft_split() failed.\nError", &strings);
+	strings.first_cmd_state = 1;
 
 	/**
 	 * Get the second command and its parameters if there are any.
 	 */
 	strings.second_cmd = ft_split(argv[3], ' ');
 	check_error(strings.second_cmd == NULL, ENOMEM, "ft_split() failed.\nError", &strings);
+	strings.second_cmd_state = 1;
 
 	/**
 	 * Loop through the environment variables until PATH is found.
@@ -111,11 +119,13 @@ int	main(int argc, char **argv, char **envp)
 	while (envp[i]) {
 		strings.env_var = ft_split(envp[i], '=');
 		check_error(strings.env_var == NULL, ENOMEM, "ft_split() failed.\nError", &strings);
+		strings.env_var_state = 1;
 
 		path_var_found = ft_strncmp("PATH", strings.env_var[0], 5) == 0;
 		if (path_var_found) {
 			strings.paths = ft_split(strings.env_var[1], ':');
 			check_error(strings.paths == NULL, ENOMEM, "ft_split() failed.\nError", &strings);
+			strings.paths_state = 1;
 
 			j = 0;
 			while (strings.paths[j]) {
@@ -123,12 +133,14 @@ int	main(int argc, char **argv, char **envp)
 				{
 					strings.slash_cmd = ft_strjoin("/", strings.first_cmd[0]);
 					check_error(strings.slash_cmd == NULL, ENOMEM, "ft_strjoin() failed.\nError", &strings);
+					strings.slash_cmd_state = 1;
 
-					free_and_init(strings.first_cmd_full_path);
+					free_and_init(strings.first_cmd_full_path, &strings.first_cmd_full_path_state);
 					strings.first_cmd_full_path = ft_strjoin(strings.paths[j], strings.slash_cmd);
 					check_error(strings.first_cmd_full_path == NULL, ENOMEM, "ft_strjoin() failed.\nError", &strings);
+					strings.first_cmd_full_path_state = 1;
 
-					free_and_init(strings.slash_cmd);
+					free_and_init(strings.slash_cmd, &strings.slash_cmd_state);
 					first_cmd_path_fd = open(strings.first_cmd_full_path, O_RDONLY);
 					close(first_cmd_path_fd);
 				}
@@ -136,10 +148,12 @@ int	main(int argc, char **argv, char **envp)
 				{
 					strings.slash_cmd = ft_strjoin("/", strings.second_cmd[0]);
 					check_error(strings.slash_cmd == NULL, ENOMEM, "ft_strjoin() failed.\nError", &strings);
-					free_and_init(strings.second_cmd_full_path);
+					strings.slash_cmd_state = 1;
+					free_and_init(strings.second_cmd_full_path, &strings.second_cmd_full_path_state);
 					strings.second_cmd_full_path = ft_strjoin(strings.paths[j], strings.slash_cmd);
 					check_error(strings.second_cmd_full_path == NULL, ENOMEM, "ft_strjoin() failed.\nError", &strings);
-					free_and_init(strings.slash_cmd);
+					strings.second_cmd_full_path_state = 1;
+					free_and_init(strings.slash_cmd, &strings.slash_cmd_state);
 					second_cmd_path_fd = open(strings.second_cmd_full_path, O_RDONLY);
 					close(second_cmd_path_fd);
 				}
@@ -147,9 +161,9 @@ int	main(int argc, char **argv, char **envp)
 					break ;
 				j++;
 			}
-			free_double_pointer_and_init(strings.paths);
+			free_double_pointer_and_init(strings.paths, &strings.paths_state);
 		}
-		free_double_pointer_and_init(strings.env_var);
+		free_double_pointer_and_init(strings.env_var, &strings.env_var_state);
 		if (first_cmd_path_fd != -1 && second_cmd_path_fd != -1)
 			break ;
 		else if (path_var_found)
@@ -224,8 +238,8 @@ int	main(int argc, char **argv, char **envp)
 		child_b = fork();
 		check_error(child_b == -1, errno, "fork() failed.\nError", &strings);
 
-		free_double_pointer_and_init(strings.first_cmd);
-		free_and_init(strings.first_cmd_full_path);
+		free_double_pointer_and_init(strings.first_cmd, &strings.first_cmd_state);
+		free_and_init(strings.first_cmd_full_path, &strings.first_cmd_full_path_state);
 
 		if (child_b == 0)
 		{
@@ -247,8 +261,8 @@ int	main(int argc, char **argv, char **envp)
 		else
 		{
 			check_error(wait(NULL) == -1, errno, "waitpid() failed.\nError", &strings);
-			free_double_pointer_and_init(strings.second_cmd);
-			free_and_init(strings.second_cmd_full_path);
+			free_double_pointer_and_init(strings.second_cmd, &strings.second_cmd_state);
+			free_and_init(strings.second_cmd_full_path, &strings.second_cmd_full_path_state);
 		}
 	}
 

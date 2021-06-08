@@ -1,1 +1,8 @@
-salam
+Makefile
+infile
+main.c
+outfile
+pipex
+pipex.dSYM
+pipex.h
+utils
