@@ -6,7 +6,7 @@
 #    By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/05/21 07:20:17 by mhaddi            #+#    #+#              #
-#    Updated: 2021/06/08 06:43:10 by mhaddi           ###   ########.fr        #
+#    Updated: 2021/06/08 16:23:14 by mhaddi           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,9 +18,10 @@ SRCS		= main.c \
 			  utils/ft_strjoin.c \
 			  utils/ft_strlcpy.c \
 			  utils/ft_strncmp.c \
-			  utils/ft_raise_error.c \
-			  utils/ft_free_double_pointer.c
-CC			= clang
+			  utils/raise_error.c \
+			  utils/free_and_init.c \
+			  utils/free_double_pointer_and_init.c
+CC			= gcc
 RM			= rm -f
 CFLAGS		= -Wall -Wextra -Werror
 DFLAGS		= -g -fsanitize=address
