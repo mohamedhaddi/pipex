@@ -6,7 +6,7 @@
 #    By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/05/21 07:20:17 by mhaddi            #+#    #+#              #
-#    Updated: 2021/06/08 18:54:20 by mhaddi           ###   ########.fr        #
+#    Updated: 2021/06/08 19:54:34 by mhaddi           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -33,9 +33,10 @@ $(NAME):
 			$(CC) $(CFLAGS) $(DFLAGS) $(SRCS) -o $(NAME)
 
 clean:		
-			$(RM) $(NAME)
+			$(RM) -r *.dSYM
 
 fclean:		clean
+			$(RM) $(NAME)
 
 re:			fclean all
 
