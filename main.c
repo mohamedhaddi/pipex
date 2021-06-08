@@ -6,7 +6,7 @@
 /*   By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/04 16:50:38 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/07 17:15:53 by mhaddi           ###   ########.fr       */
+/*   Updated: 2021/06/08 05:20:37 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,13 +71,28 @@ int	main(int argc, char **argv, char **envp)
 	first_cmd_path_fd = -1;
 	second_cmd_path_fd = -1;
 	first_cmd_full_path = malloc(sizeof(first_cmd_full_path));
+	if (first_cmd_full_path == NULL)
+	{
+		ft_free_double_pointer(first_cmd);
+		ft_free_double_pointer(second_cmd);
+		ft_raise_error(ENOMEM, "malloc() failed.\nError");
+	}
 	second_cmd_full_path = malloc(sizeof(second_cmd_full_path));
+	if (second_cmd_full_path == NULL)
+	{
+		ft_free_double_pointer(first_cmd);
+		ft_free_double_pointer(second_cmd);
+		free(first_cmd_full_path);
+		ft_raise_error(ENOMEM, "malloc() failed.\nError");
+	}
 	while (envp[i]) {
 		env_var = ft_split(envp[i], '=');
 		if (env_var == NULL)
 		{
 			ft_free_double_pointer(first_cmd);
 			ft_free_double_pointer(second_cmd);
+			free(first_cmd_full_path);
+			free(second_cmd_full_path);
 			ft_raise_error(ENOMEM, "ft_split() failed.\nError");
 		}
 		path_var_found = ft_strncmp("PATH", env_var[0], 5) == 0;
@@ -88,6 +103,8 @@ int	main(int argc, char **argv, char **envp)
 				ft_free_double_pointer(first_cmd);
 				ft_free_double_pointer(second_cmd);
 				ft_free_double_pointer(env_var);
+				free(first_cmd_full_path);
+				free(second_cmd_full_path);
 				ft_raise_error(ENOMEM, "ft_split() failed.\nError");
 			}
 			j = 0;
@@ -101,9 +118,11 @@ int	main(int argc, char **argv, char **envp)
 						ft_free_double_pointer(second_cmd);
 						ft_free_double_pointer(env_var);
 						ft_free_double_pointer(paths);
+						free(first_cmd_full_path);
 						free(second_cmd_full_path);
 						ft_raise_error(ENOMEM, "ft_strjoin() failed.\nError");
 					}
+					free(first_cmd_full_path);
 					first_cmd_full_path = ft_strjoin(paths[j], slash_cmd);
 					if (first_cmd_full_path == NULL)
 					{
@@ -129,8 +148,10 @@ int	main(int argc, char **argv, char **envp)
 						ft_free_double_pointer(env_var);
 						ft_free_double_pointer(paths);
 						free(first_cmd_full_path);
+						free(second_cmd_full_path);
 						ft_raise_error(ENOMEM, "ft_strjoin() failed.\nError");
 					}
+					free(second_cmd_full_path);
 					second_cmd_full_path = ft_strjoin(paths[j], slash_cmd);
 					if (second_cmd_full_path == NULL)
 					{
