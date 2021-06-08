@@ -6,7 +6,7 @@
 /*   By: mhaddi <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/25 18:57:17 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/07 02:31:21 by mhaddi           ###   ########.fr       */
+/*   Updated: 2021/06/08 16:00:47 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,8 @@ char				**ft_split(char const *s, char c);
 char			    *ft_strjoin(char const *s1, char const *s2);
 size_t				ft_strlcpy(char *dst, const char *src, size_t size);
 int					ft_strncmp(const char *s1, const char *s2, size_t n);
-void			    ft_free_double_pointer(char **ptr);
-void			    ft_raise_error(int errno_val, char *error_msg);
+void			    free_double_pointer_and_init(char **ptr);
+void			    raise_error(int errno_val, char *error_msg);
+void    			free_and_init(char *ptr);
 
 #endif

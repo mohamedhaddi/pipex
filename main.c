@@ -6,27 +6,70 @@
 /*   By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/04 16:50:38 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/08 07:05:34 by mhaddi           ###   ########.fr       */
+/*   Updated: 2021/06/08 16:16:57 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 #include <stdlib.h>
 
-int	main(int argc, char **argv, char **envp)
+typedef struct	s_strings
 {
 	char **first_cmd;
 	char **second_cmd;
+	char *first_cmd_full_path;
+	char *second_cmd_full_path;
+	char **env_var;
+	char **paths;
+	char *slash_cmd;
+}				t_strings;
+
+void	init_all_strings(t_strings *strings)
+{
+	strings->first_cmd = NULL;
+	strings->second_cmd = NULL;
+	strings->first_cmd_full_path = NULL;
+	strings->second_cmd_full_path = NULL;
+	strings->env_var = NULL;
+	strings->paths = NULL;
+	strings->slash_cmd = NULL;
+}
+
+void	free_all_strings(t_strings *strings)
+{
+	if (strings->first_cmd)
+		free_double_pointer_and_init(strings->first_cmd);
+	if (strings->second_cmd)
+		free_double_pointer_and_init(strings->second_cmd);
+	if (strings->first_cmd_full_path)
+		free_and_init(strings->first_cmd_full_path);
+	if (strings->second_cmd_full_path)
+		free_and_init(strings->second_cmd_full_path);
+	if (strings->env_var)
+		free_double_pointer_and_init(strings->env_var);
+	if (strings->paths)
+		free_double_pointer_and_init(strings->paths);
+	if (strings->slash_cmd)
+		free_and_init(strings->slash_cmd);
+}
+
+void	check_error(bool is_error, int errno_val, char *error_msg, t_strings *strings)
+{
+	if (is_error)
+	{
+		free_all_strings(strings);
+		raise_error(errno_val, error_msg);
+	}
+}
+
+int	main(int argc, char **argv, char **envp)
+{
+	t_strings strings;
 	int i;
 	int first_cmd_path_fd;
 	int second_cmd_path_fd;
-	char *first_cmd_full_path;
-	char *second_cmd_full_path;
 	bool path_var_found;
-	char **env_var;
-	char **paths;
 	int j;
-	char *slash_cmd;
 	int pipe_fd[2];
 	int pipe_status;
 	pid_t child_a;
@@ -35,30 +78,25 @@ int	main(int argc, char **argv, char **envp)
 	pid_t child_b;
 	int close_status;
 
+	init_all_strings(&strings);
+
 	/**
 	 * Check number of arguments.
 	 */
-	if (argc != 5)
-		ft_raise_error(EINVAL,
-				"There should be 4 arguments to your program, "
-				"e.g.:\n./pipex file1 cmd1 cmd2 file2\nError");
+	check_error(argc != 5, EINVAL, "There should be 4 arguments to your program, "
+				"e.g.:\n./pipex file1 cmd1 cmd2 file2\nError", &strings);
 
 	/**
 	 * Get the first command and its parameters if there are any.
 	 */
-	first_cmd = ft_split(argv[2], ' ');
-	if (first_cmd == NULL)
-		ft_raise_error(ENOMEM, "ft_split() failed.\nError");
+	strings.first_cmd = ft_split(argv[2], ' ');
+	check_error(strings.first_cmd == NULL, ENOMEM, "ft_split() failed.\nError", &strings);
 
 	/**
 	 * Get the second command and its parameters if there are any.
 	 */
-	second_cmd = ft_split(argv[3], ' ');
-	if (second_cmd == NULL)
-	{
-		ft_free_double_pointer(first_cmd);
-		ft_raise_error(ENOMEM, "ft_split() failed.\nError");
-	}
+	strings.second_cmd = ft_split(argv[3], ' ');
+	check_error(strings.second_cmd == NULL, ENOMEM, "ft_split() failed.\nError", &strings);
 
 	/**
 	 * Loop through the environment variables until PATH is found.
@@ -70,124 +108,55 @@ int	main(int argc, char **argv, char **envp)
 	i = 0;
 	first_cmd_path_fd = -1;
 	second_cmd_path_fd = -1;
-	first_cmd_full_path = malloc(sizeof(first_cmd_full_path));
-	if (first_cmd_full_path == NULL)
-	{
-		ft_free_double_pointer(first_cmd);
-		ft_free_double_pointer(second_cmd);
-		ft_raise_error(ENOMEM, "malloc() failed.\nError");
-	}
-	second_cmd_full_path = malloc(sizeof(second_cmd_full_path));
-	if (second_cmd_full_path == NULL)
-	{
-		ft_free_double_pointer(first_cmd);
-		ft_free_double_pointer(second_cmd);
-		free(first_cmd_full_path);
-		ft_raise_error(ENOMEM, "malloc() failed.\nError");
-	}
 	while (envp[i]) {
-		env_var = ft_split(envp[i], '=');
-		if (env_var == NULL)
-		{
-			ft_free_double_pointer(first_cmd);
-			ft_free_double_pointer(second_cmd);
-			free(first_cmd_full_path);
-			free(second_cmd_full_path);
-			ft_raise_error(ENOMEM, "ft_split() failed.\nError");
-		}
-		path_var_found = ft_strncmp("PATH", env_var[0], 5) == 0;
+		strings.env_var = ft_split(envp[i], '=');
+		check_error(strings.env_var == NULL, ENOMEM, "ft_split() failed.\nError", &strings);
+
+		path_var_found = ft_strncmp("PATH", strings.env_var[0], 5) == 0;
 		if (path_var_found) {
-			paths = ft_split(env_var[1], ':');
-			if (paths == NULL)
-			{
-				ft_free_double_pointer(first_cmd);
-				ft_free_double_pointer(second_cmd);
-				ft_free_double_pointer(env_var);
-				free(first_cmd_full_path);
-				free(second_cmd_full_path);
-				ft_raise_error(ENOMEM, "ft_split() failed.\nError");
-			}
+			strings.paths = ft_split(strings.env_var[1], ':');
+			check_error(strings.paths == NULL, ENOMEM, "ft_split() failed.\nError", &strings);
+
 			j = 0;
-			while (paths[j]) {
+			while (strings.paths[j]) {
 				if (first_cmd_path_fd == -1)
 				{
-					slash_cmd = ft_strjoin("/", first_cmd[0]);
-					if (slash_cmd == NULL)
-					{
-						ft_free_double_pointer(first_cmd);
-						ft_free_double_pointer(second_cmd);
-						ft_free_double_pointer(env_var);
-						ft_free_double_pointer(paths);
-						free(first_cmd_full_path);
-						free(second_cmd_full_path);
-						ft_raise_error(ENOMEM, "ft_strjoin() failed.\nError");
-					}
-					free(first_cmd_full_path);
-					first_cmd_full_path = ft_strjoin(paths[j], slash_cmd);
-					if (first_cmd_full_path == NULL)
-					{
-						ft_free_double_pointer(first_cmd);
-						ft_free_double_pointer(second_cmd);
-						ft_free_double_pointer(env_var);
-						ft_free_double_pointer(paths);
-						free(slash_cmd);
-						free(second_cmd_full_path);
-						ft_raise_error(ENOMEM, "ft_strjoin() failed.\nError");
-					}
-					free(slash_cmd);
-					first_cmd_path_fd = open(first_cmd_full_path, O_RDONLY);
+					strings.slash_cmd = ft_strjoin("/", strings.first_cmd[0]);
+					check_error(strings.slash_cmd == NULL, ENOMEM, "ft_strjoin() failed.\nError", &strings);
+
+					free_and_init(strings.first_cmd_full_path);
+					strings.first_cmd_full_path = ft_strjoin(strings.paths[j], strings.slash_cmd);
+					check_error(strings.first_cmd_full_path == NULL, ENOMEM, "ft_strjoin() failed.\nError", &strings);
+
+					free_and_init(strings.slash_cmd);
+					first_cmd_path_fd = open(strings.first_cmd_full_path, O_RDONLY);
 					close(first_cmd_path_fd);
 				}
 				if (second_cmd_path_fd == -1)
 				{
-					slash_cmd = ft_strjoin("/", second_cmd[0]);
-					if (slash_cmd == NULL)
-					{
-						ft_free_double_pointer(first_cmd);
-						ft_free_double_pointer(second_cmd);
-						ft_free_double_pointer(env_var);
-						ft_free_double_pointer(paths);
-						free(first_cmd_full_path);
-						free(second_cmd_full_path);
-						ft_raise_error(ENOMEM, "ft_strjoin() failed.\nError");
-					}
-					free(second_cmd_full_path);
-					second_cmd_full_path = ft_strjoin(paths[j], slash_cmd);
-					if (second_cmd_full_path == NULL)
-					{
-						ft_free_double_pointer(first_cmd);
-						ft_free_double_pointer(second_cmd);
-						ft_free_double_pointer(env_var);
-						ft_free_double_pointer(paths);
-						free(slash_cmd);
-						free(first_cmd_full_path);
-						ft_raise_error(ENOMEM, "ft_strjoin() failed.\nError");
-					}
-					free(slash_cmd);
-					second_cmd_path_fd = open(second_cmd_full_path, O_RDONLY);
+					strings.slash_cmd = ft_strjoin("/", strings.second_cmd[0]);
+					check_error(strings.slash_cmd == NULL, ENOMEM, "ft_strjoin() failed.\nError", &strings);
+					free_and_init(strings.second_cmd_full_path);
+					strings.second_cmd_full_path = ft_strjoin(strings.paths[j], strings.slash_cmd);
+					check_error(strings.second_cmd_full_path == NULL, ENOMEM, "ft_strjoin() failed.\nError", &strings);
+					free_and_init(strings.slash_cmd);
+					second_cmd_path_fd = open(strings.second_cmd_full_path, O_RDONLY);
 					close(second_cmd_path_fd);
 				}
 				if (first_cmd_path_fd != -1 && second_cmd_path_fd != -1)
 					break ;
 				j++;
 			}
-			ft_free_double_pointer(paths);
+			free_double_pointer_and_init(strings.paths);
 		}
-		ft_free_double_pointer(env_var);
+		free_double_pointer_and_init(strings.env_var);
 		if (first_cmd_path_fd != -1 && second_cmd_path_fd != -1)
 			break ;
 		else if (path_var_found)
 			break ;
 		i++;
 	}
-	if (first_cmd_path_fd == -1 || second_cmd_path_fd == -1)
-	{
-		ft_free_double_pointer(first_cmd);
-		ft_free_double_pointer(second_cmd);
-		free(first_cmd_full_path);
-		free(second_cmd_full_path);
-		ft_raise_error(EINVAL, "Command not found.\nError");
-	}
+	check_error(first_cmd_path_fd == -1 || second_cmd_path_fd == -1, EINVAL, "Command not found.\nError", &strings);
 
 	/**
 	 * Release stdin (FD 0) so that it no longer refers to any file,
@@ -195,34 +164,13 @@ int	main(int argc, char **argv, char **envp)
 	 * FD 0 (lowest FD available).
 	 */
 	close_status = close(0);
-	if (close_status == -1)
-	{
-		ft_free_double_pointer(first_cmd);
-		ft_free_double_pointer(second_cmd);
-		free(first_cmd_full_path);
-		free(second_cmd_full_path);
-		ft_raise_error(errno, "close() failed.\nError");
-	}
+	check_error(close_status == -1, errno, "close() failed.\nError", &strings);
 
 	int infile_fd = open(argv[1], O_RDONLY);
-	if (infile_fd == -1)
-	{
-		ft_free_double_pointer(first_cmd);
-		ft_free_double_pointer(second_cmd);
-		free(first_cmd_full_path);
-		free(second_cmd_full_path);
-		ft_raise_error(ENOENT, "Input file invalid.\nError");
-	}
+	check_error(infile_fd == -1, ENOENT, "Input file invalid.\nError", &strings);
 
 	int outfile_fd = open(argv[4], O_WRONLY | O_TRUNC | O_CREAT, 0644);
-	if (outfile_fd == -1)
-	{
-		ft_free_double_pointer(first_cmd);
-		ft_free_double_pointer(second_cmd);
-		free(first_cmd_full_path);
-		free(second_cmd_full_path);
-		ft_raise_error(ENOENT, "Couldn't open/create output file.\nError");
-	}
+	check_error(outfile_fd == -1, ENOENT, "Couldn't open/create output file.\nError", &strings);
 
 	/**
 	 * Create a pipe with pipe(), it fills in fields of the array
@@ -232,14 +180,7 @@ int	main(int argc, char **argv, char **envp)
 	 * It returns either 0 for success or -1 in case of error.
 	 */
 	pipe_status = pipe(pipe_fd);
-	if (pipe_status == -1)
-	{
-		ft_free_double_pointer(first_cmd);
-		ft_free_double_pointer(second_cmd);
-		free(first_cmd_full_path);
-		free(second_cmd_full_path);
-		ft_raise_error(errno, "pipe() failed.\nError");
-	}
+	check_error(pipe_status == -1, errno, "pipe() failed.\nError", &strings);
 
 	/**
 	 * Fork a child (child_a) in order to execute the first command.
@@ -268,96 +209,46 @@ int	main(int argc, char **argv, char **envp)
 	 * in a "zombie" state.
 	 */
 	child_a = fork();
-	if (child_a == -1)
-	{
-		ft_free_double_pointer(first_cmd);
-		ft_free_double_pointer(second_cmd);
-		free(first_cmd_full_path);
-		free(second_cmd_full_path);
-		ft_raise_error(errno, "fork() failed.\nError");
-	}
-	else if (child_a == 0)
+	check_error(child_a == -1, errno, "fork() failed.\nError", &strings);
+
+	if (child_a == 0)
 	{
 		dup2_fd = dup2(pipe_fd[1], 1);
-		if (dup2_fd == -1)
-		{
-			ft_free_double_pointer(first_cmd);
-			ft_free_double_pointer(second_cmd);
-			free(first_cmd_full_path);
-			free(second_cmd_full_path);
-			ft_raise_error(errno, "dup2() failed.\nError");
-		}
-		exec_status = execve(first_cmd_full_path, first_cmd, envp);
-		if (exec_status == -1)
-		{
-			ft_free_double_pointer(first_cmd);
-			ft_free_double_pointer(second_cmd);
-			free(first_cmd_full_path);
-			free(second_cmd_full_path);
-			ft_raise_error(errno, "execve() failed.\nError");
-		}
+		check_error(dup2_fd == -1, errno, "dup2() failed.\nError", &strings);
+
+		exec_status = execve(strings.first_cmd_full_path, strings.first_cmd, envp);
+		check_error(exec_status == -1, errno, "execve() failed.\nError", &strings);
 	}
 	else
 	{
 		child_b = fork();
-		if (child_b == -1)
-		{
-			ft_free_double_pointer(first_cmd);
-			ft_free_double_pointer(second_cmd);
-			free(first_cmd_full_path);
-			free(second_cmd_full_path);
-			ft_raise_error(errno, "fork() failed.\nError");
-		}
-		ft_free_double_pointer(first_cmd);
-		free(first_cmd_full_path);
+		check_error(child_b == -1, errno, "fork() failed.\nError", &strings);
+
+		free_double_pointer_and_init(strings.first_cmd);
+		free_and_init(strings.first_cmd_full_path);
+
 		if (child_b == 0)
 		{
 			dup2_fd = dup2(pipe_fd[0], 0);
-			if (dup2_fd == -1)
-			{
-				ft_free_double_pointer(second_cmd);
-				free(second_cmd_full_path);
-				ft_raise_error(errno, "dup2() failed.\nError");
-			}
+			check_error(dup2_fd == -1, errno, "dup2() failed.\nError", &strings);
+
 			close_status = close(pipe_fd[1]);
-			if (close_status == -1)
-			{
-				ft_free_double_pointer(second_cmd);
-				free(second_cmd_full_path);
-				ft_raise_error(errno, "close() failed.\nError");
-			}
+			check_error(close_status == -1, errno, "close() failed.\nError", &strings);
+
 			close_status = close(pipe_fd[0]);
-			if (close_status == -1)
-			{
-				ft_free_double_pointer(second_cmd);
-				free(second_cmd_full_path);
-				ft_raise_error(errno, "close() failed.\nError");
-			}
+			check_error(close_status == -1, errno, "close() failed.\nError", &strings);
+
 			dup2_fd = dup2(outfile_fd, 1);
-			if (dup2_fd == -1)
-			{
-				ft_free_double_pointer(second_cmd);
-				free(second_cmd_full_path);
-				ft_raise_error(errno, "dup2() failed.\nError");
-			}
-			exec_status = execve(second_cmd_full_path, second_cmd, envp);
-			if (exec_status == -1)
-			{
-				ft_free_double_pointer(second_cmd);
-				free(second_cmd_full_path);
-				ft_raise_error(errno, "execve() failed.\nError");
-			}
+			check_error(dup2_fd == -1, errno, "dup2() failed.\nError", &strings);
+
+			exec_status = execve(strings.second_cmd_full_path, strings.second_cmd, envp);
+			check_error(exec_status == -1, errno, "execve() failed.\nError", &strings);
 		}
 		else
 		{
-			if (wait(NULL) == -1)
-			{
-				ft_free_double_pointer(second_cmd);
-				free(second_cmd_full_path);
-				ft_raise_error(errno, "waitpid() failed.\nError");
-			}
-			ft_free_double_pointer(second_cmd);
-			free(second_cmd_full_path);
+			check_error(wait(NULL) == -1, errno, "waitpid() failed.\nError", &strings);
+			free_double_pointer_and_init(strings.second_cmd);
+			free_and_init(strings.second_cmd_full_path);
 		}
 	}
 

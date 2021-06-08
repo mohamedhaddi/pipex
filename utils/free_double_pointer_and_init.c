@@ -1,23 +1,24 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_free_double_pointer.c                           :+:      :+:    :+:   */
+/*   free_double_pointer.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/06 19:16:02 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/06 19:17:18 by mhaddi           ###   ########.fr       */
+/*   Updated: 2021/06/08 16:00:35 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../pipex.h"
 
-void    ft_free_double_pointer(char **ptr)
+void    free_double_pointer_and_init(char **ptr)
 {
     int i;
 
     i = 0;
     while (ptr[i])
-        free(ptr[i++]);
+        free_and_init(ptr[i++]);
     free(ptr);
+    ptr = NULL;
 }
