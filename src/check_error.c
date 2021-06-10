@@ -6,7 +6,7 @@
 /*   By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/10 17:19:26 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/10 17:41:31 by mhaddi           ###   ########.fr       */
+/*   Updated: 2021/06/10 19:22:33 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,8 @@ void	raise_error(int errno_val, char *error_msg)
 
 void	check_error(
 			bool is_error,
-			int errno_val, char
-			*error_msg,
+			int errno_val,
+			char *error_msg,
 			t_strings *strings
 			)
 {

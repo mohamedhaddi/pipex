@@ -6,7 +6,7 @@
 /*   By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/10 17:20:31 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/10 17:36:17 by mhaddi           ###   ########.fr       */
+/*   Updated: 2021/06/10 19:24:39 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,9 +44,11 @@ void	init_all_strings(t_strings *strings)
 	strings->first_cmd = malloc(sizeof(char **) * 4);
 	check_error(
 		strings->first_cmd == NULL, ENOMEM, "malloc() failed.\nerror", strings);
+	strings->first_cmd[0] = NULL;
 	strings->first_cmd_state = 1;
 	strings->second_cmd = malloc(sizeof(char **) * 4);
 	check_error(
 		strings->second_cmd == NULL, ENOMEM, "malloc() failed.\nerror", strings);
+	strings->second_cmd[0] = NULL;
 	strings->second_cmd_state = 1;
 }

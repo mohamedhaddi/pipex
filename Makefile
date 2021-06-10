@@ -6,13 +6,13 @@
 #    By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/05/21 07:20:17 by mhaddi            #+#    #+#              #
-#    Updated: 2021/06/10 17:58:17 by mhaddi           ###   ########.fr        #
+#    Updated: 2021/06/10 19:20:30 by mhaddi           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-SRCS		= src/main.c \
+SRCS		= src/mem_check.c \
+			  src/main.c \
 			  src/check_error.c \
-			  src/mem_check.c \
 			  src/set_command.c \
 			  src/open_files.c \
 			  src/create_pipe.c \
