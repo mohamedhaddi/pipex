@@ -6,18 +6,18 @@
 #    By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/05/21 07:20:17 by mhaddi            #+#    #+#              #
-#    Updated: 2021/06/10 17:35:35 by mhaddi           ###   ########.fr        #
+#    Updated: 2021/06/10 17:58:17 by mhaddi           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-SRCS		= main.c \
-			  check_error.c \
-			  mem_check.c \
-			  set_command.c \
-			  open_files.c \
-			  create_pipe.c \
-			  make_children.c \
-			  strings.c \
+SRCS		= src/main.c \
+			  src/check_error.c \
+			  src/mem_check.c \
+			  src/set_command.c \
+			  src/open_files.c \
+			  src/create_pipe.c \
+			  src/make_children.c \
+			  src/strings.c
 CC			= gcc
 RM			= rm -f
 CFLAGS		= -Wall -Wextra -Werror
