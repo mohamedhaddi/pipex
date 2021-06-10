@@ -6,21 +6,18 @@
 #    By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/05/21 07:20:17 by mhaddi            #+#    #+#              #
-#    Updated: 2021/06/08 19:54:34 by mhaddi           ###   ########.fr        #
+#    Updated: 2021/06/10 17:35:35 by mhaddi           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 SRCS		= main.c \
-			  utils/ft_split.c \
-			  utils/ft_split_utils.c \
-			  utils/ft_strdup.c \
-			  utils/ft_strlen.c \
-			  utils/ft_strjoin.c \
-			  utils/ft_strlcpy.c \
-			  utils/ft_strncmp.c \
-			  utils/raise_error.c \
-			  utils/free_and_init.c \
-			  utils/free_double_pointer_and_init.c
+			  check_error.c \
+			  mem_check.c \
+			  set_command.c \
+			  open_files.c \
+			  create_pipe.c \
+			  make_children.c \
+			  strings.c \
 CC			= gcc
 RM			= rm -f
 CFLAGS		= -Wall -Wextra -Werror

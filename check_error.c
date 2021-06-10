@@ -1,19 +1,34 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   free_and_init.c                                    :+:      :+:    :+:   */
+/*   check_error.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/06/06 19:16:02 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/08 19:28:41 by mhaddi           ###   ########.fr       */
+/*   Created: 2021/06/10 17:19:26 by mhaddi            #+#    #+#             */
+/*   Updated: 2021/06/10 17:41:31 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../pipex.h"
+#include "pipex.h"
 
-void    free_and_init(char *ptr, int *state)
+void	raise_error(int errno_val, char *error_msg)
 {
-    free(ptr);
-    *state = 0;
+	errno = errno_val;
+	perror(error_msg);
+	exit(EXIT_FAILURE);
+}
+
+void	check_error(
+			bool is_error,
+			int errno_val, char
+			*error_msg,
+			t_strings *strings
+			)
+{
+	if (is_error)
+	{
+		free_all_strings(strings);
+		raise_error(errno_val, error_msg);
+	}
 }
