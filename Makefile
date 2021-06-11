@@ -6,12 +6,12 @@
 #    By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/05/21 07:20:17 by mhaddi            #+#    #+#              #
-#    Updated: 2021/06/10 19:20:30 by mhaddi           ###   ########.fr        #
+#    Updated: 2021/06/11 16:32:32 by mhaddi           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-SRCS		= src/mem_check.c \
-			  src/main.c \
+SRCS		= src/main.c \
+			  src/mem_check.c \
 			  src/check_error.c \
 			  src/set_command.c \
 			  src/open_files.c \

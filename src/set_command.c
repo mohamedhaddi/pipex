@@ -6,12 +6,21 @@
 /*   By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/10 17:32:22 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/10 17:33:02 by mhaddi           ###   ########.fr       */
+/*   Updated: 2021/06/11 17:01:29 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
+/**
+ * Setting up the final command that will be fed to execve(), so that instead of
+ * giving execve() the command itself and then parsing its arguments (e.g. if a
+ * user's second command was "grep ' '" or "grep \\\\\\\\" a lot of parsing and
+ * escaping would have to be done), instead, I'm giving execve() the binary
+ * "/bin/sh" with the first argument being "-c" and the second argument being
+ * the user's command with all its arguments in a single string, so "/bin/sh"
+ * will do all the parsing and of course the exact behavior we want.
+ */
 void	set_command(char **dst_cmd, char *cmd, t_strings *strings)
 {
 	size_t	cmd_len;
