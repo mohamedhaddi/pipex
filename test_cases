@@ -1,0 +1,32 @@
+- invalid num of args:
+./pipex files/infile "cat" "grep c"
+./pipex files/infile "cat" "grep c" files/outfile lel
+
+- invalid files:
+./pipex files/invalid "cat" "grep c" files/outfile
+./pipex files/infile "cat" "grep c" files/
+./pipex files/ "cat" "grep c" files/outfile
+
+- invalid args:
+./pipex files/infile "cadt" "grep c" files/outfile
+./pipex files/infile "cat" "grepd c" files/outfile
+./pipex files/infile "cat -dsf" "gred -ddf c" files/outfile
+./pipex files/infile "" "grep c" files/outfile
+./pipex files/infile "cadt" "" files/outfile
+./pipex files/infile "" "" files/outfile
+
+- invalid files and args:
+./pipex files/invalid "cadt" "grep c" files/outfile
+./pipex files/infile "cat" "grepd c" files/
+./pipex files/ "cat -dsf" "gred -ddf c" files/outfile
+./pipex files/invalid "" "grep c" files/outfile
+./pipex files/infile "cadt" "" files/
+./pipex files/ "" "" files/outfile
+
+- invalid order:
+./pipex "cat" files/infile "grep c" files/outfile
+./pipex "cat" "grep c" files/infile  files/outfile
+./pipex files/infile files/outfile "cat" "grep c"
+./pipex files/infile "cat" "grep c" files/outfile "cat" "grep c"
+
+- other cmds + invalid cmds...
