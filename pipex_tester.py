@@ -6,7 +6,7 @@
 #    By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/06/12 23:01:40 by mhaddi            #+#    #+#              #
-#    Updated: 2021/06/12 23:01:42 by mhaddi           ###   ########.fr        #
+#    Updated: 2021/06/13 00:38:21 by mhaddi           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -38,6 +38,10 @@ inp_content = "hi\ncv?\ntest space\n"
 cmds = [
     "cat",
     "cAt",
+    "bash",
+    "chmod",
+    "ls",
+    "pwd",
     "grep ' '",
 ]
 
@@ -108,8 +112,12 @@ def test_invalid_num_args():
     print("\033[03;33m" + "TEST II ### INVALID NUM OF ARGS ###" + "\033[0m")
     print()
     count = 1
-    for cmd1 in cmds:
-        for cmd2 in cmds:
+    new_cmds = [
+        "cat",
+        "grep c",
+    ]
+    for cmd1 in new_cmds:
+        for cmd2 in new_cmds:
             inp = infile
             usr_test = f'(./pipex {inp} "{cmd1}" "{cmd2}") 2>tester_files/errors2'
             os.system(usr_test)
@@ -129,8 +137,8 @@ def test_invalid_num_args():
             print("\033[03;92m" + "All good? Errors handled and all?" + "\033[0m")
             print()
             count += 1
-    for cmd1 in cmds:
-        for cmd2 in cmds:
+    for cmd1 in new_cmds:
+        for cmd2 in new_cmds:
             inp = infile
             out1 = outfile1
             usr_test = (
@@ -160,8 +168,12 @@ def test_invalid_files():
     print("\033[03;33m" + "TEST III ### INVALID FILES ###" + "\033[0m")
     print()
     count = 1
-    for cmd1 in cmds:
-        for cmd2 in cmds:
+    new_cmds = [
+        "cat",
+        "grep c",
+    ]
+    for cmd1 in new_cmds:
+        for cmd2 in new_cmds:
             inps = ["tester_files/", "tester_files/invalid"]
             for inp in inps:
                 out1 = outfile1
@@ -196,8 +208,8 @@ def test_invalid_files():
                 print("\033[03;92m" + "All good? Errors handled and all?" + "\033[0m")
                 print()
                 count += 1
-    for cmd1 in cmds:
-        for cmd2 in cmds:
+    for cmd1 in new_cmds:
+        for cmd2 in new_cmds:
             inp = infile
             out1 = "tester_files/"
             out2 = "tester_files/"
@@ -283,8 +295,12 @@ def test_invalid_order():
     print("\033[03;33m" + "TEST V ### INVALID ORDER ###" + "\033[0m")
     print()
     count = 1
-    for cmd1 in cmds:
-        for cmd2 in cmds:
+    new_cmds = [
+        "cat",
+        "grep c",
+    ]
+    for cmd1 in new_cmds:
+        for cmd2 in new_cmds:
             inp = infile
             out1 = outfile1
             out2 = outfile2
@@ -318,8 +334,8 @@ def test_invalid_order():
             print("\033[03;92m" + "All good? Errors handled and all?" + "\033[0m")
             print()
             count += 1
-    for cmd1 in cmds:
-        for cmd2 in cmds:
+    for cmd1 in new_cmds:
+        for cmd2 in new_cmds:
             inp = infile
             out1 = outfile1
             out2 = outfile2
@@ -353,8 +369,8 @@ def test_invalid_order():
             print("\033[03;92m" + "All good? Errors handled and all?" + "\033[0m")
             print()
             count += 1
-    for cmd1 in cmds:
-        for cmd2 in cmds:
+    for cmd1 in new_cmds:
+        for cmd2 in new_cmds:
             inp = infile
             out1 = outfile1
             out2 = outfile2
