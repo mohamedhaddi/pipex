@@ -6,7 +6,7 @@
 #    By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/06/12 23:01:40 by mhaddi            #+#    #+#              #
-#    Updated: 2021/06/13 00:38:21 by mhaddi           ###   ########.fr        #
+#    Updated: 2021/06/13 13:19:29 by mhaddi           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -23,6 +23,7 @@ if not os.path.exists("./pipex"):
     - Only prints the outputs diff for tests with valid arguments.
     - Prints only errors for invalid arguments tests (doesn't print output files).
     - Doesn't check for memory leaks.
+    - Doesn't check for exit status.
 """
 
 """
