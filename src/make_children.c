@@ -6,12 +6,13 @@
 /*   By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/10 17:16:05 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/13 13:41:32 by mhaddi           ###   ########.fr       */
+/*   Updated: 2021/06/14 15:53:56 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
+/*
 void	raise_child_a(int **fds, t_strings *strings, char **envp)
 {
 	int	exec_status;
@@ -48,6 +49,7 @@ void	raise_child_b(int **fds, t_strings *strings, char **envp)
 	exec_status = execve(strings->second_cmd[0], strings->second_cmd, envp);
 	check_error(exec_status == -1, errno, "execve() failed.\nError", strings);
 }
+*/
 
 /**
  * Fork a child (child_a) in order to execute the first command.
@@ -75,36 +77,70 @@ void	raise_child_b(int **fds, t_strings *strings, char **envp)
  * after terminating; if a wait is not performed, then the terminated child
  * remains in a "zombie" state.
  */
+
+void	raise_child(int **fds, int num_cmd, t_strings *strings, char **envp)
+{
+	int	exec_status;
+	int	close_status;
+	int	*pipe_fd;
+	int	*outfile_fd;
+	int	*dup2_fd;
+
+	pipe_fd = fds[0];
+	outfile_fd = fds[1];
+	dup2_fd = fds[2];
+	if (num_cmd % 2)
+	{
+		*dup2_fd = dup2(pipe_fd[0], 0);
+		check_error(*dup2_fd == -1, errno, "dup2() failed.\nError", strings);
+		close_status = close(pipe_fd[1]);
+		check_error(close_status == -1, errno, "close() failed.\nError", strings);
+		close_status = close(pipe_fd[0]);
+		check_error(close_status == -1, errno, "close() failed.\nError", strings);
+		*dup2_fd = dup2(*outfile_fd, 1);
+		check_error(*dup2_fd == -1, errno, "dup2() failed.\nError", strings);
+	}
+	else {
+		*dup2_fd = dup2(pipe_fd[1], 1);
+		check_error(*dup2_fd == -1, errno, "dup2() failed.\nError", strings);
+		exec_status = execve(strings->cmds[num_cmd][0], strings->cmds[num_cmd], envp);
+		check_error(exec_status == -1, errno, "execve() failed.\nError", strings);
+	}
+}
+
 void	make_children(
-			int *pipe_fd,
 			int *outfile_fd,
 			t_strings *strings,
-			char **envp
+			char **envp,
+			int argc
 			)
 {
-	pid_t	child_a;
-	pid_t	child_b;
+	pid_t	pids[2];
 	int		dup2_fd;
+	int		pipe_fd[2];
 
-	child_a = fork();
-	check_error(child_a == -1, errno, "fork() failed.\nError", strings);
-	if (child_a == 0)
-		raise_child_a((int *[2]){pipe_fd, &dup2_fd}, strings, envp);
-	else
+	int i = 0;
+	while (i < (argc - 3))
 	{
-		child_b = fork();
-		check_error(child_b == -1, errno, "fork() failed.\nError", strings);
-		free_double_pointer_and_init(strings->first_cmd,
-			&strings->first_cmd_state);
-		if (child_b == 0)
-			raise_child_b(
-				(int *[3]){pipe_fd, outfile_fd, &dup2_fd}, strings, envp);
-		else
+		if (i % 2 == 0)
+			create_pipe(pipe_fd, strings);
+		pids[i] = fork();
+		check_error(pids[i] == -1, errno, "fork() failed.\nError", strings);
+		if (pids[i] == 0)
 		{
-			check_error(
-				wait(NULL) == -1, errno, "waitpid() failed.\nError", strings);
-			free_double_pointer_and_init(strings->second_cmd,
-				&strings->second_cmd_state);
+			raise_child((int *[3]){pipe_fd, outfile_fd, &dup2_fd}, i, strings, envp);
+			exit(EXIT_SUCCESS);
 		}
+		i++;
+	}
+
+	int status;
+	pid_t pid;
+	i = 0;
+	while (i < (argc - 3))
+	{
+		pid = wait(&status);
+		check_error(pid == -1, errno, "wait() failed.\nError", strings);
+		i++;
 	}
 }

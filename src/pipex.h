@@ -6,7 +6,7 @@
 /*   By: mhaddi <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/25 18:57:17 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/13 13:41:35 by mhaddi           ###   ########.fr       */
+/*   Updated: 2021/06/14 15:30:38 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,10 +23,8 @@
 
 typedef struct s_strings
 {
-	char		**first_cmd;
-	int			first_cmd_state;
-	char		**second_cmd;
-	int			second_cmd_state;
+	char		***cmds;
+	int			cmds_state;
 }				t_strings;
 
 size_t			ft_strlen(const char *s);
@@ -39,10 +37,10 @@ void			raise_error(int errno_val, char *error_msg);
 void			free_double_pointer_and_init(char **ptr, int *state);
 void			free_and_init(char *ptr, int *state);
 void			make_children(
-					int *pipe_fd,
 					int *outfile_fd,
 					t_strings *strings,
-					char **envp
+					char **envp,
+					int argc
 					);
 void			check_error(
 					bool is_error,
@@ -57,7 +55,7 @@ void			open_files(
 					t_strings *strings
 					);
 void			free_all_strings(t_strings *strings);
-void			init_all_strings(t_strings *strings);
+void			init_all_strings(t_strings *strings, int argc);
 void			create_pipe(int *pipe_fd, t_strings *strings);
 void			set_command(char **dst_cmd, char *cmd, t_strings *strings);
 
