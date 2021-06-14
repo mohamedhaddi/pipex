@@ -6,7 +6,7 @@
 /*   By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/10 17:16:05 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/14 15:53:56 by mhaddi           ###   ########.fr       */
+/*   Updated: 2021/06/14 20:04:04 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,6 +99,8 @@ void	raise_child(int **fds, int num_cmd, t_strings *strings, char **envp)
 		check_error(close_status == -1, errno, "close() failed.\nError", strings);
 		*dup2_fd = dup2(*outfile_fd, 1);
 		check_error(*dup2_fd == -1, errno, "dup2() failed.\nError", strings);
+		exec_status = execve(strings->cmds[num_cmd][0], strings->cmds[num_cmd], envp);
+		check_error(exec_status == -1, errno, "execve() failed.\nError", strings);
 	}
 	else {
 		*dup2_fd = dup2(pipe_fd[1], 1);
