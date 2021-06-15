@@ -6,7 +6,7 @@
 /*   By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/10 17:16:05 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/14 20:04:04 by mhaddi           ###   ########.fr       */
+/*   Updated: 2021/06/15 19:40:45 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,8 +89,14 @@ void	raise_child(int **fds, int num_cmd, t_strings *strings, char **envp)
 	pipe_fd = fds[0];
 	outfile_fd = fds[1];
 	dup2_fd = fds[2];
-	if (num_cmd % 2)
+	if (num_cmd % 2 == 0)
 	{
+		*dup2_fd = dup2(pipe_fd[1], 1);
+		check_error(*dup2_fd == -1, errno, "dup2() failed.\nError", strings);
+		exec_status = execve(strings->cmds[num_cmd][0], strings->cmds[num_cmd], envp);
+		check_error(exec_status == -1, errno, "execve() failed.\nError", strings);
+	}
+	else {
 		*dup2_fd = dup2(pipe_fd[0], 0);
 		check_error(*dup2_fd == -1, errno, "dup2() failed.\nError", strings);
 		close_status = close(pipe_fd[1]);
@@ -98,12 +104,6 @@ void	raise_child(int **fds, int num_cmd, t_strings *strings, char **envp)
 		close_status = close(pipe_fd[0]);
 		check_error(close_status == -1, errno, "close() failed.\nError", strings);
 		*dup2_fd = dup2(*outfile_fd, 1);
-		check_error(*dup2_fd == -1, errno, "dup2() failed.\nError", strings);
-		exec_status = execve(strings->cmds[num_cmd][0], strings->cmds[num_cmd], envp);
-		check_error(exec_status == -1, errno, "execve() failed.\nError", strings);
-	}
-	else {
-		*dup2_fd = dup2(pipe_fd[1], 1);
 		check_error(*dup2_fd == -1, errno, "dup2() failed.\nError", strings);
 		exec_status = execve(strings->cmds[num_cmd][0], strings->cmds[num_cmd], envp);
 		check_error(exec_status == -1, errno, "execve() failed.\nError", strings);
@@ -120,6 +120,8 @@ void	make_children(
 	pid_t	pids[2];
 	int		dup2_fd;
 	int		pipe_fd[2];
+	int status;
+	pid_t pid;
 
 	int i = 0;
 	while (i < (argc - 3))
@@ -130,19 +132,16 @@ void	make_children(
 		check_error(pids[i] == -1, errno, "fork() failed.\nError", strings);
 		if (pids[i] == 0)
 		{
+			printf("My parent id is %d \n", getppid());
 			raise_child((int *[3]){pipe_fd, outfile_fd, &dup2_fd}, i, strings, envp);
 			exit(EXIT_SUCCESS);
 		}
-		i++;
-	}
-
-	int status;
-	pid_t pid;
-	i = 0;
-	while (i < (argc - 3))
-	{
-		pid = wait(&status);
-		check_error(pid == -1, errno, "wait() failed.\nError", strings);
+		else {
+			pid = wait(&status);
+			unsigned short mask = (1 << (15 - 8)) - 1;
+			printf("Child with PID %ld exited with status %d.\n", (long)pid, (status >> 8) & mask);
+			check_error(pid == -1, errno, "wait() failed.\nError", strings);
+		}
 		i++;
 	}
 }
