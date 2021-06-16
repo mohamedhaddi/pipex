@@ -6,11 +6,12 @@
 /*   By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/10 17:16:05 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/15 19:40:45 by mhaddi           ###   ########.fr       */
+/*   Updated: 2021/06/16 16:25:05 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
+#include <stdlib.h>
 
 /*
 void	raise_child_a(int **fds, t_strings *strings, char **envp)
@@ -81,27 +82,29 @@ void	raise_child_b(int **fds, t_strings *strings, char **envp)
 void	raise_child(int **fds, int num_cmd, t_strings *strings, char **envp)
 {
 	int	exec_status;
-	int	close_status;
 	int	*pipe_fd;
 	int	*outfile_fd;
 	int	*dup2_fd;
+	int	close_status;
 
 	pipe_fd = fds[0];
 	outfile_fd = fds[1];
 	dup2_fd = fds[2];
 	if (num_cmd % 2 == 0)
 	{
+		close_status = close(pipe_fd[0]);
+		check_error(close_status == -1, errno, "close() failed.\nError", strings);
 		*dup2_fd = dup2(pipe_fd[1], 1);
 		check_error(*dup2_fd == -1, errno, "dup2() failed.\nError", strings);
 		exec_status = execve(strings->cmds[num_cmd][0], strings->cmds[num_cmd], envp);
 		check_error(exec_status == -1, errno, "execve() failed.\nError", strings);
 	}
 	else {
+		close_status = close(0);
+		check_error(close_status == -1, errno, "close() failed.\nError", strings);
 		*dup2_fd = dup2(pipe_fd[0], 0);
 		check_error(*dup2_fd == -1, errno, "dup2() failed.\nError", strings);
-		close_status = close(pipe_fd[1]);
-		check_error(close_status == -1, errno, "close() failed.\nError", strings);
-		close_status = close(pipe_fd[0]);
+		close_status = close(1);
 		check_error(close_status == -1, errno, "close() failed.\nError", strings);
 		*dup2_fd = dup2(*outfile_fd, 1);
 		check_error(*dup2_fd == -1, errno, "dup2() failed.\nError", strings);
@@ -122,6 +125,7 @@ void	make_children(
 	int		pipe_fd[2];
 	int status;
 	pid_t pid;
+	int close_status;
 
 	int i = 0;
 	while (i < (argc - 3))
@@ -134,13 +138,29 @@ void	make_children(
 		{
 			printf("My parent id is %d \n", getppid());
 			raise_child((int *[3]){pipe_fd, outfile_fd, &dup2_fd}, i, strings, envp);
-			exit(EXIT_SUCCESS);
 		}
-		else {
+		else
+		{
 			pid = wait(&status);
-			unsigned short mask = (1 << (15 - 8)) - 1;
-			printf("Child with PID %ld exited with status %d.\n", (long)pid, (status >> 8) & mask);
 			check_error(pid == -1, errno, "wait() failed.\nError", strings);
+			if (i % 2 == 0)
+			{
+				close_status = close(pipe_fd[1]);
+				check_error(close_status == -1, errno, "close() failed.\nError", strings);
+			}
+			else
+			{
+				close_status = close(pipe_fd[0]);
+				check_error(close_status == -1, errno, "close() failed.\nError", strings);
+			}
+			if (pid > -1)
+			{
+				if (WIFEXITED(status) != 0)
+					exit(WEXITSTATUS(status));
+				else
+					exit(EXIT_FAILURE);
+			}
+			exit(EXIT_SUCCESS);
 		}
 		i++;
 	}
