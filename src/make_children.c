@@ -6,7 +6,7 @@
 /*   By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/10 17:16:05 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/16 16:25:05 by mhaddi           ###   ########.fr       */
+/*   Updated: 2021/06/16 17:00:44 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,8 +92,6 @@ void	raise_child(int **fds, int num_cmd, t_strings *strings, char **envp)
 	dup2_fd = fds[2];
 	if (num_cmd % 2 == 0)
 	{
-		close_status = close(pipe_fd[0]);
-		check_error(close_status == -1, errno, "close() failed.\nError", strings);
 		*dup2_fd = dup2(pipe_fd[1], 1);
 		check_error(*dup2_fd == -1, errno, "dup2() failed.\nError", strings);
 		exec_status = execve(strings->cmds[num_cmd][0], strings->cmds[num_cmd], envp);
@@ -135,14 +133,27 @@ void	make_children(
 		pids[i] = fork();
 		check_error(pids[i] == -1, errno, "fork() failed.\nError", strings);
 		if (pids[i] == 0)
-		{
-			printf("My parent id is %d \n", getppid());
 			raise_child((int *[3]){pipe_fd, outfile_fd, &dup2_fd}, i, strings, envp);
-		}
 		else
 		{
 			pid = wait(&status);
 			check_error(pid == -1, errno, "wait() failed.\nError", strings);
+			if (pid > -1)
+			{
+				if (WIFEXITED(status) != 0)
+				{
+					if (WEXITSTATUS(status) != 0)
+					{
+						free_all_strings(strings);
+						exit(WEXITSTATUS(status));
+					}
+				}
+				else
+				{
+					free_all_strings(strings);
+					exit(EXIT_FAILURE);
+				}
+			}
 			if (i % 2 == 0)
 			{
 				close_status = close(pipe_fd[1]);
@@ -153,14 +164,6 @@ void	make_children(
 				close_status = close(pipe_fd[0]);
 				check_error(close_status == -1, errno, "close() failed.\nError", strings);
 			}
-			if (pid > -1)
-			{
-				if (WIFEXITED(status) != 0)
-					exit(WEXITSTATUS(status));
-				else
-					exit(EXIT_FAILURE);
-			}
-			exit(EXIT_SUCCESS);
 		}
 		i++;
 	}
