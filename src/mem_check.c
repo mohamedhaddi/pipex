@@ -6,7 +6,7 @@
 /*   By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/10 17:20:31 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/17 00:23:30 by mhaddi           ###   ########.fr       */
+/*   Updated: 2021/06/17 01:10:30 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ void	free_double_pointer_and_init(char **ptr, int *state)
 
 void	free_triple_pointer_and_init(char ***ptr, int *state)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	while (ptr[i])
@@ -48,15 +48,16 @@ void	free_all_strings(t_strings *strings)
 
 void	init_all_strings(t_strings *strings, int argc)
 {
-	int i = 0;
+	int	i;
 
 	strings->cmds = malloc(sizeof(char ***) * (argc - 2));
-	check_error(strings->cmds == NULL, ENOMEM, "malloc() failed.\nerror", strings);
+	check_error(!strings->cmds, ENOMEM, "malloc() failed.\nerror", strings);
+	i = 0;
 	while (i < argc - 3)
 	{
 		strings->cmds[i] = malloc(sizeof(char **) * 4);
 		check_error(
-			strings->cmds[i] == NULL, ENOMEM, "malloc() failed.\nerror", strings);
+			!strings->cmds[i], ENOMEM, "malloc() failed.\nerror", strings);
 		strings->cmds[i][0] = NULL;
 		i++;
 	}
