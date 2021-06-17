@@ -6,7 +6,7 @@
 /*   By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/10 17:16:05 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/17 08:49:29 by mhaddi           ###   ########.fr       */
+/*   Updated: 2021/06/17 08:58:38 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,10 +34,6 @@ void	raise_child(int **fds, int num_cmd, int argc, t_strings *strings, char **en
 
 	pipe_fd = fds[0];
 	outfile_fd = fds[1];
-	//if (num_cmd)
-	//	close_status = close(0);
-	//check_error(
-	//		close_status == -1, errno, "close() failed.\nError", strings);
 	if (num_cmd < argc - 4) // if not last command
 		check_error(
 				dup2(pipe_fd[1], 1) == -1, errno, "dup2() failed.\nError", strings);
