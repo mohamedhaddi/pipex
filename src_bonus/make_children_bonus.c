@@ -6,7 +6,7 @@
 /*   By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/10 17:16:05 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/17 04:14:18 by mhaddi           ###   ########.fr       */
+/*   Updated: 2021/06/17 08:49:29 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,36 +30,24 @@ void	raise_child(int **fds, int num_cmd, int argc, t_strings *strings, char **en
 	int	exec_status;
 	int	*pipe_fd;
 	int	*outfile_fd;
-	int	close_status;
+	//int	close_status;
 
 	pipe_fd = fds[0];
 	outfile_fd = fds[1];
-	if (num_cmd % 2 == 0)
-	{
-		if (num_cmd > 0)
-		{
-			close_status = close(0);
-			check_error(
-				close_status == -1, errno, "close() failed.\nError", strings);
-			*outfile_fd = open(strings->argv[argc - 1], O_RDONLY);
-		}
+	//if (num_cmd)
+	//	close_status = close(0);
+	//check_error(
+	//		close_status == -1, errno, "close() failed.\nError", strings);
+	if (num_cmd < argc - 4) // if not last command
 		check_error(
-			dup2(pipe_fd[1], 1) == -1, errno, "dup2() failed.\nError", strings);
-	}
+				dup2(pipe_fd[1], 1) == -1, errno, "dup2() failed.\nError", strings);
 	else
-	{
-		close_status = close(0);
 		check_error(
-			close_status == -1, errno, "close() failed.\nError", strings);
-		check_error(dup2(pipe_fd[0], 0) == -1,
-			errno, "dup2() failed.\nError", strings);
-		check_error(dup2(*outfile_fd, 1) == -1,
-			errno, "No such file or directory.\nError", strings);
-	}
+				dup2(*outfile_fd, 1) == -1, errno, "dup2() failed.\nError", strings);
 	exec_status = execve(
 			strings->cmds[num_cmd][0], strings->cmds[num_cmd], envp);
 	check_error(
-		exec_status == -1, errno, "execve() failed.\nError", strings);
+			exec_status == -1, errno, "execve() failed.\nError", strings);
 }
 
 /**
@@ -107,10 +95,15 @@ void	make_children(
 	int		num_cmd;
 
 	num_cmd = 0;
+	create_pipe(pipe_fd, strings);
 	while (num_cmd < (argc - 3))
 	{
-		if (num_cmd % 2 == 0)
+		if (num_cmd) // if not first command
+		{
+			check_error(
+					dup2(pipe_fd[0], 0) == -1, errno, "dup2() failed.\nError", strings);
 			create_pipe(pipe_fd, strings);
+		}
 		pids[num_cmd] = fork();
 		check_error(
 			pids[num_cmd] == -1, errno, "fork() failed.\nError", strings);
@@ -118,10 +111,9 @@ void	make_children(
 			raise_child(
 				(int *[2]){pipe_fd, outfile_fd}, num_cmd, argc, strings, envp);
 		check_exit_status(num_cmd == argc - 4, strings);
-		if (num_cmd % 2 == 0)
-			check_error(
-				close(pipe_fd[1]) == -1,
-				errno, "close() failed.\nError", strings);
+		check_error(
+			close(pipe_fd[1]) == -1,
+			errno, "close() failed.\nError", strings);
 		num_cmd++;
 	}
 }
