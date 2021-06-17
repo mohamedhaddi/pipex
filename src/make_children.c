@@ -6,7 +6,7 @@
 /*   By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/10 17:16:05 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/16 17:00:44 by mhaddi           ###   ########.fr       */
+/*   Updated: 2021/06/17 00:39:36 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,7 +105,7 @@ void	raise_child(int **fds, int num_cmd, t_strings *strings, char **envp)
 		close_status = close(1);
 		check_error(close_status == -1, errno, "close() failed.\nError", strings);
 		*dup2_fd = dup2(*outfile_fd, 1);
-		check_error(*dup2_fd == -1, errno, "dup2() failed.\nError", strings);
+		check_error(*dup2_fd == -1, errno, "No such file or directory.\nError", strings);
 		exec_status = execve(strings->cmds[num_cmd][0], strings->cmds[num_cmd], envp);
 		check_error(exec_status == -1, errno, "execve() failed.\nError", strings);
 	}
@@ -138,21 +138,10 @@ void	make_children(
 		{
 			pid = wait(&status);
 			check_error(pid == -1, errno, "wait() failed.\nError", strings);
-			if (pid > -1)
+			if (WIFEXITED(status) != 0 && WEXITSTATUS(status) != 0 && i % 2)
 			{
-				if (WIFEXITED(status) != 0)
-				{
-					if (WEXITSTATUS(status) != 0)
-					{
-						free_all_strings(strings);
-						exit(WEXITSTATUS(status));
-					}
-				}
-				else
-				{
-					free_all_strings(strings);
-					exit(EXIT_FAILURE);
-				}
+				free_all_strings(strings);
+				exit(WEXITSTATUS(status));
 			}
 			if (i % 2 == 0)
 			{

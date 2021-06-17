@@ -6,7 +6,7 @@
 #    By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/06/12 23:01:40 by mhaddi            #+#    #+#              #
-#    Updated: 2021/06/13 13:19:29 by mhaddi           ###   ########.fr        #
+#    Updated: 2021/06/17 01:00:47 by mhaddi           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,10 +20,18 @@ if not os.path.exists("./pipex"):
     exit()
 
 """
-    - Only prints the outputs diff for tests with valid arguments.
-    - Prints only errors for invalid arguments tests (doesn't print output files).
-    - Doesn't check for memory leaks.
-    - Doesn't check for exit status.
+    You can go to the end of this file and comment out the function calls
+    you don't want to test for now.
+"""
+
+"""
+    # Only prints the diff of output files for tests with valid arguments.
+    # Only prints errors for tests with invalid arguments (doesn't print
+    their output files).
+    # Prints diff for exit status (except, of course, for tests with invalid
+    number of arguments).
+    # Doesn't check for memory leaks.
+    # Only tests the mandatory part for now.
 """
 
 """
@@ -67,9 +75,13 @@ def test_valid_args():
             inp = infile
             out1 = outfile1
             out2 = outfile2
-            sys_test = f"(< {inp} {cmd1} | {cmd2} > {out1}) 2>tester_files/errors1"
+            sys_test = (
+                f"(< {inp} {cmd1} | {cmd2} > {out1};"
+                + " echo $? > tester_files/exit_status1) 2>tester_files/errors1"
+            )
             usr_test = (
-                f'(./pipex {inp} "{cmd1}" "{cmd2}" {out2}) 2>tester_files/errors2'
+                f'(./pipex {inp} "{cmd1}" "{cmd2}" {out2};'
+                + " echo $? > tester_files/exit_status2) 2>tester_files/errors2"
             )
             os.system(sys_test)
             time.sleep(0.5)
@@ -106,6 +118,25 @@ def test_valid_args():
                     usr_errors,
                     sep="\n",
                 )
+            print("\033[96m" + "exit_status diff: " + "\033[0m")
+            print()
+            if filecmp.cmp("tester_files/exit_status1", "tester_files/exit_status2"):
+                print("\033[03;92m" + "Good" + "\033[0m")
+                print()
+                text1 = open("tester_files/exit_status1").readlines()
+                text2 = open("tester_files/exit_status2").readlines()
+                for line in text1:
+                    print(line)
+                for line in text2:
+                    print(line)
+            else:
+                print("\033[03;91m" + "No good" + "\033[0m")
+                print()
+                text1 = open("tester_files/exit_status1").readlines()
+                text2 = open("tester_files/exit_status2").readlines()
+                for line in difflib.unified_diff(text1, text2):
+                    print(line)
+                print()
             count += 1
 
 
@@ -179,9 +210,13 @@ def test_invalid_files():
             for inp in inps:
                 out1 = outfile1
                 out2 = outfile2
-                sys_test = f"(< {inp} {cmd1} | {cmd2} > {out1}) 2>tester_files/errors1"
+                sys_test = (
+                    f"(< {inp} {cmd1} | {cmd2} > {out1};"
+                    + " echo $? > tester_files/exit_status1) 2>tester_files/errors1"
+                )
                 usr_test = (
-                    f'(./pipex {inp} "{cmd1}" "{cmd2}" {out2}) 2>tester_files/errors2'
+                    f'(./pipex {inp} "{cmd1}" "{cmd2}" {out2};'
+                    + " echo $? > tester_files/exit_status2) 2>tester_files/errors2"
                 )
                 os.system(sys_test)
                 time.sleep(0.5)
@@ -208,15 +243,40 @@ def test_invalid_files():
                 )
                 print("\033[03;92m" + "All good? Errors handled and all?" + "\033[0m")
                 print()
+                print("\033[96m" + "exit_status diff: " + "\033[0m")
+                print()
+                if filecmp.cmp(
+                    "tester_files/exit_status1", "tester_files/exit_status2"
+                ):
+                    print("\033[03;92m" + "Good" + "\033[0m")
+                    print()
+                    text1 = open("tester_files/exit_status1").readlines()
+                    text2 = open("tester_files/exit_status2").readlines()
+                    for line in text1:
+                        print(line)
+                    for line in text2:
+                        print(line)
+                else:
+                    print("\033[03;91m" + "No good" + "\033[0m")
+                    print()
+                    text1 = open("tester_files/exit_status1").readlines()
+                    text2 = open("tester_files/exit_status2").readlines()
+                    for line in difflib.unified_diff(text1, text2):
+                        print(line)
+                    print()
                 count += 1
     for cmd1 in new_cmds:
         for cmd2 in new_cmds:
             inp = infile
             out1 = "tester_files/"
             out2 = "tester_files/"
-            sys_test = f"(< {inp} {cmd1} | {cmd2} > {out1}) 2>tester_files/errors1"
+            sys_test = (
+                f"(< {inp} {cmd1} | {cmd2} > {out1};"
+                + " echo $? > tester_files/exit_status1) 2>tester_files/errors1"
+            )
             usr_test = (
-                f'(./pipex {inp} "{cmd1}" "{cmd2}" {out2}) 2>tester_files/errors2'
+                f'(./pipex {inp} "{cmd1}" "{cmd2}" {out2};'
+                + " echo $? > tester_files/exit_status2) 2>tester_files/errors2"
             )
             os.system(sys_test)
             time.sleep(0.5)
@@ -243,6 +303,25 @@ def test_invalid_files():
             )
             print("\033[03;92m" + "All good? Errors handled and all?" + "\033[0m")
             print()
+            print("\033[96m" + "exit_status diff: " + "\033[0m")
+            print()
+            if filecmp.cmp("tester_files/exit_status1", "tester_files/exit_status2"):
+                print("\033[03;92m" + "Good" + "\033[0m")
+                print()
+                text1 = open("tester_files/exit_status1").readlines()
+                text2 = open("tester_files/exit_status2").readlines()
+                for line in text1:
+                    print(line)
+                for line in text2:
+                    print(line)
+            else:
+                print("\033[03;91m" + "No good" + "\033[0m")
+                print()
+                text1 = open("tester_files/exit_status1").readlines()
+                text2 = open("tester_files/exit_status2").readlines()
+                for line in difflib.unified_diff(text1, text2):
+                    print(line)
+                print()
             count += 1
 
 
@@ -260,9 +339,13 @@ def test_invalid_cmds():
             inp = infile
             out1 = outfile1
             out2 = outfile2
-            sys_test = f"(< {inp} {cmd1} | {cmd2} > {out1}) 2>tester_files/errors1"
+            sys_test = (
+                f"(< {inp} {cmd1} | {cmd2} > {out1};"
+                + " echo $? > tester_files/exit_status1) 2>tester_files/errors1"
+            )
             usr_test = (
-                f'(./pipex {inp} "{cmd1}" "{cmd2}" {out2}) 2>tester_files/errors2'
+                f'(./pipex {inp} "{cmd1}" "{cmd2}" {out2};'
+                + " echo $? > tester_files/exit_status2) 2>tester_files/errors2"
             )
             os.system(sys_test)
             time.sleep(0.5)
@@ -289,6 +372,25 @@ def test_invalid_cmds():
             )
             print("\033[03;92m" + "All good? Errors handled and all?" + "\033[0m")
             print()
+            print("\033[96m" + "exit_status diff: " + "\033[0m")
+            print()
+            if filecmp.cmp("tester_files/exit_status1", "tester_files/exit_status2"):
+                print("\033[03;92m" + "Good" + "\033[0m")
+                print()
+                text1 = open("tester_files/exit_status1").readlines()
+                text2 = open("tester_files/exit_status2").readlines()
+                for line in text1:
+                    print(line)
+                for line in text2:
+                    print(line)
+            else:
+                print("\033[03;91m" + "No good" + "\033[0m")
+                print()
+                text1 = open("tester_files/exit_status1").readlines()
+                text2 = open("tester_files/exit_status2").readlines()
+                for line in difflib.unified_diff(text1, text2):
+                    print(line)
+                print()
             count += 1
 
 
@@ -305,9 +407,13 @@ def test_invalid_order():
             inp = infile
             out1 = outfile1
             out2 = outfile2
-            sys_test = f"(< {cmd1} {inp} | {cmd2} > {out1}) 2>tester_files/errors1"
+            sys_test = (
+                f"(< {cmd1} {inp} | {cmd2} > {out1};"
+                + " echo $? > tester_files/exit_status1) 2>tester_files/errors1"
+            )
             usr_test = (
-                f'(./pipex "{cmd1}" {inp} "{cmd2}" {out2}) 2>tester_files/errors2'
+                f'(./pipex "{cmd1}" {inp} "{cmd2}" {out2};'
+                + " echo $? > tester_files/exit_status2) 2>tester_files/errors2"
             )
             os.system(sys_test)
             time.sleep(0.5)
@@ -334,15 +440,38 @@ def test_invalid_order():
             )
             print("\033[03;92m" + "All good? Errors handled and all?" + "\033[0m")
             print()
+            print("\033[96m" + "exit_status diff: " + "\033[0m")
+            print()
+            if filecmp.cmp("tester_files/exit_status1", "tester_files/exit_status2"):
+                print("\033[03;92m" + "Good" + "\033[0m")
+                print()
+                text1 = open("tester_files/exit_status1").readlines()
+                text2 = open("tester_files/exit_status2").readlines()
+                for line in text1:
+                    print(line)
+                for line in text2:
+                    print(line)
+            else:
+                print("\033[03;91m" + "No good" + "\033[0m")
+                print()
+                text1 = open("tester_files/exit_status1").readlines()
+                text2 = open("tester_files/exit_status2").readlines()
+                for line in difflib.unified_diff(text1, text2):
+                    print(line)
+                print()
             count += 1
     for cmd1 in new_cmds:
         for cmd2 in new_cmds:
             inp = infile
             out1 = outfile1
             out2 = outfile2
-            sys_test = f"(< {cmd1} {cmd2} | {inp} > {out1}) 2>tester_files/errors1"
+            sys_test = (
+                f"(< {cmd1} {cmd2} | {inp} > {out1};"
+                + " echo $? > tester_files/exit_status1) 2>tester_files/errors1"
+            )
             usr_test = (
-                f'(./pipex "{cmd1}" "{cmd2}" {inp} {out2}) 2>tester_files/errors2'
+                f'(./pipex "{cmd1}" "{cmd2}" {inp} {out2};'
+                + " echo $? > tester_files/exit_status2) 2>tester_files/errors2"
             )
             os.system(sys_test)
             time.sleep(0.5)
@@ -369,15 +498,38 @@ def test_invalid_order():
             )
             print("\033[03;92m" + "All good? Errors handled and all?" + "\033[0m")
             print()
+            print("\033[96m" + "exit_status diff: " + "\033[0m")
+            print()
+            if filecmp.cmp("tester_files/exit_status1", "tester_files/exit_status2"):
+                print("\033[03;92m" + "Good" + "\033[0m")
+                print()
+                text1 = open("tester_files/exit_status1").readlines()
+                text2 = open("tester_files/exit_status2").readlines()
+                for line in text1:
+                    print(line)
+                for line in text2:
+                    print(line)
+            else:
+                print("\033[03;91m" + "No good" + "\033[0m")
+                print()
+                text1 = open("tester_files/exit_status1").readlines()
+                text2 = open("tester_files/exit_status2").readlines()
+                for line in difflib.unified_diff(text1, text2):
+                    print(line)
+                print()
             count += 1
     for cmd1 in new_cmds:
         for cmd2 in new_cmds:
             inp = infile
             out1 = outfile1
             out2 = outfile2
-            sys_test = f"(< {inp} {cmd1} | {cmd2} > {out1}) 2>tester_files/errors1"
+            sys_test = (
+                f"(< {inp} {cmd1} | {cmd2} > {out1};"
+                + " echo $? > tester_files/exit_status1) 2>tester_files/errors1"
+            )
             usr_test = (
-                f'(./pipex {inp} "{cmd1}" "{cmd2}" {out2}) 2>tester_files/errors2'
+                f'(./pipex {inp} "{cmd1}" "{cmd2}" {out2};'
+                + " echo $? > tester_files/exit_status2) 2>tester_files/errors2"
             )
             os.system(sys_test)
             time.sleep(0.5)
@@ -404,6 +556,25 @@ def test_invalid_order():
             )
             print("\033[03;92m" + "All good? Errors handled and all?" + "\033[0m")
             print()
+            print("\033[96m" + "exit_status diff: " + "\033[0m")
+            print()
+            if filecmp.cmp("tester_files/exit_status1", "tester_files/exit_status2"):
+                print("\033[03;92m" + "Good" + "\033[0m")
+                print()
+                text1 = open("tester_files/exit_status1").readlines()
+                text2 = open("tester_files/exit_status2").readlines()
+                for line in text1:
+                    print(line)
+                for line in text2:
+                    print(line)
+            else:
+                print("\033[03;91m" + "No good" + "\033[0m")
+                print()
+                text1 = open("tester_files/exit_status1").readlines()
+                text2 = open("tester_files/exit_status2").readlines()
+                for line in difflib.unified_diff(text1, text2):
+                    print(line)
+                print()
             count += 1
 
 

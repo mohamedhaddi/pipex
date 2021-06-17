@@ -6,7 +6,7 @@
 /*   By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/04 16:50:38 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/16 16:34:24 by mhaddi           ###   ########.fr       */
+/*   Updated: 2021/06/17 00:16:47 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,12 +19,12 @@ int	main(int argc, char **argv, char **envp)
 	int			infile_fd;
 	int			outfile_fd;
 
+	init_all_strings(&strings, argc);
 	check_error(argc != 5,
 		EINVAL,
 		"There should be 4 arguments to your program, "
 		"e.g.:\n./pipex file1 cmd1 cmd2 file2\nError",
 		&strings);
-	init_all_strings(&strings, argc);
 	int i = 0;
 	while (i < (argc - 3))
 	{
