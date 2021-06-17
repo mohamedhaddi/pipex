@@ -6,7 +6,7 @@
 #    By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/05/21 07:20:17 by mhaddi            #+#    #+#              #
-#    Updated: 2021/06/17 03:01:51 by mhaddi           ###   ########.fr        #
+#    Updated: 2021/06/17 15:27:15 by mhaddi           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -25,7 +25,9 @@ BNS_SRCS	= src_bonus/main_bonus.c \
 			  src_bonus/open_files_bonus.c \
 			  src_bonus/create_pipe_bonus.c \
 			  src_bonus/make_children_bonus.c \
-			  src_bonus/strings_bonus.c
+			  src_bonus/strings_bonus.c \
+			  src_bonus/get_next_line.c \
+			  src_bonus/get_next_line_utils.c 
 CC			= gcc
 RM			= rm -f
 CFLAGS		= -Wall -Wextra -Werror
