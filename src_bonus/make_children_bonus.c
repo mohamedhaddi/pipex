@@ -1,31 +1,31 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   make_children.c                                    :+:      :+:    :+:   */
+/*   make_children_bonus.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/10 17:16:05 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/17 03:20:14 by mhaddi           ###   ########.fr       */
+/*   Updated: 2021/06/17 04:14:18 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "pipex.h"
+#include "pipex_bonus.h"
 
-void	check_exit_status(int i, t_strings *strings)
+void	check_exit_status(int is_last_cmd, t_strings *strings)
 {
 	int	child_status;
 
 	check_error(
 		wait(&child_status) == -1, errno, "wait() failed.\nError", strings);
-	if (WIFEXITED(child_status) != 0 && WEXITSTATUS(child_status) != 0 && i % 2)
+	if (WIFEXITED(child_status) != 0 && WEXITSTATUS(child_status) != 0 && is_last_cmd)
 	{
 		free_all_strings(strings);
 		exit(WEXITSTATUS(child_status));
 	}
 }
 
-void	raise_child(int **fds, int num_cmd, t_strings *strings, char **envp)
+void	raise_child(int **fds, int num_cmd, int argc, t_strings *strings, char **envp)
 {
 	int	exec_status;
 	int	*pipe_fd;
@@ -35,8 +35,17 @@ void	raise_child(int **fds, int num_cmd, t_strings *strings, char **envp)
 	pipe_fd = fds[0];
 	outfile_fd = fds[1];
 	if (num_cmd % 2 == 0)
+	{
+		if (num_cmd > 0)
+		{
+			close_status = close(0);
+			check_error(
+				close_status == -1, errno, "close() failed.\nError", strings);
+			*outfile_fd = open(strings->argv[argc - 1], O_RDONLY);
+		}
 		check_error(
 			dup2(pipe_fd[1], 1) == -1, errno, "dup2() failed.\nError", strings);
+	}
 	else
 	{
 		close_status = close(0);
@@ -93,7 +102,7 @@ void	make_children(
 			int argc
 			)
 {
-	pid_t	pids[2];
+	pid_t	pids[argc];
 	int		pipe_fd[2];
 	int		num_cmd;
 
@@ -107,11 +116,12 @@ void	make_children(
 			pids[num_cmd] == -1, errno, "fork() failed.\nError", strings);
 		if (pids[num_cmd] == 0)
 			raise_child(
-				(int *[2]){pipe_fd, outfile_fd}, num_cmd, strings, envp);
-		check_exit_status(num_cmd, strings);
-		check_error(
-			close(pipe_fd[!(num_cmd % 2)]) == -1,
-			errno, "close() failed.\nError", strings);
+				(int *[2]){pipe_fd, outfile_fd}, num_cmd, argc, strings, envp);
+		check_exit_status(num_cmd == argc - 4, strings);
+		if (num_cmd % 2 == 0)
+			check_error(
+				close(pipe_fd[1]) == -1,
+				errno, "close() failed.\nError", strings);
 		num_cmd++;
 	}
 }

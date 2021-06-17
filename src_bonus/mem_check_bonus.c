@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   mem_check.c                                        :+:      :+:    :+:   */
+/*   mem_check_bonus.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/10 17:20:31 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/17 04:13:02 by mhaddi           ###   ########.fr       */
+/*   Updated: 2021/06/17 04:13:07 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "pipex.h"
+#include "pipex_bonus.h"
 
 void	free_and_init(char *ptr, int *state)
 {
@@ -46,7 +46,7 @@ void	free_all_strings(t_strings *strings)
 		free_triple_pointer_and_init(strings->cmds, &strings->cmds_state);
 }
 
-void	init_all_strings(t_strings *strings, int argc)
+void	init_all_strings(t_strings *strings, int argc, char **argv)
 {
 	int	i;
 
@@ -63,4 +63,5 @@ void	init_all_strings(t_strings *strings, int argc)
 	}
 	strings->cmds[i] = NULL;
 	strings->cmds_state = 1;
+	strings->argv = argv;
 }

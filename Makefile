@@ -6,7 +6,7 @@
 #    By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/05/21 07:20:17 by mhaddi            #+#    #+#              #
-#    Updated: 2021/06/11 16:32:32 by mhaddi           ###   ########.fr        #
+#    Updated: 2021/06/17 03:01:51 by mhaddi           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,6 +18,14 @@ SRCS		= src/main.c \
 			  src/create_pipe.c \
 			  src/make_children.c \
 			  src/strings.c
+BNS_SRCS	= src_bonus/main_bonus.c \
+			  src_bonus/mem_check_bonus.c \
+			  src_bonus/check_error_bonus.c \
+			  src_bonus/set_command_bonus.c \
+			  src_bonus/open_files_bonus.c \
+			  src_bonus/create_pipe_bonus.c \
+			  src_bonus/make_children_bonus.c \
+			  src_bonus/strings_bonus.c
 CC			= gcc
 RM			= rm -f
 CFLAGS		= -Wall -Wextra -Werror
@@ -37,4 +45,7 @@ fclean:		clean
 
 re:			fclean all
 
-.PHONY:		all clean fclean re
+bonus:
+			$(CC) $(CFLAGS) $(DFLAGS) $(BNS_SRCS) -o $(NAME)
+
+.PHONY:		all clean fclean re bonus

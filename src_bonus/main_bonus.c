@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   main_bonus.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/04 16:50:38 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/17 03:09:18 by mhaddi           ###   ########.fr       */
+/*   Updated: 2021/06/17 04:13:28 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "pipex.h"
+#include "pipex_bonus.h"
 
 int	main(int argc, char **argv, char **envp)
 {
@@ -19,10 +19,10 @@ int	main(int argc, char **argv, char **envp)
 	int			outfile_fd;
 	int			i;
 
-	init_all_strings(&strings, argc);
-	check_error(argc != 5,
+	init_all_strings(&strings, argc, argv);
+	check_error(argc < 5,
 		EINVAL,
-		"There should be 4 arguments to your program, "
+		"There should be at least 4 arguments to your program, "
 		"e.g.:\n./pipex file1 cmd1 cmd2 file2\nError",
 		&strings);
 	i = 0;
@@ -31,7 +31,7 @@ int	main(int argc, char **argv, char **envp)
 		set_command(strings.cmds[i], argv[i + 2], &strings);
 		i++;
 	}
-	open_files(&infile_fd, &outfile_fd, argv, &strings);
+	open_files((int *[2]){&infile_fd, &outfile_fd}, argc, argv, &strings);
 	make_children(&outfile_fd, &strings, envp, argc);
 	free_all_strings(&strings);
 	return (EXIT_SUCCESS);
