@@ -6,7 +6,7 @@
 /*   By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/10 17:16:05 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/17 08:58:38 by mhaddi           ###   ########.fr       */
+/*   Updated: 2021/06/18 19:35:42 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,11 +30,15 @@ void	raise_child(int **fds, int num_cmd, int argc, t_strings *strings, char **en
 	int	exec_status;
 	int	*pipe_fd;
 	int	*outfile_fd;
-	//int	close_status;
+	int		subtrahend;
+
+	subtrahend = 3;	
+	if (ft_strncmp(strings->argv[1], "here_doc", 9) == 0)
+		subtrahend = 4;	
 
 	pipe_fd = fds[0];
 	outfile_fd = fds[1];
-	if (num_cmd < argc - 4) // if not last command
+	if (num_cmd < argc - (subtrahend + 1)) // if not last command
 		check_error(
 				dup2(pipe_fd[1], 1) == -1, errno, "dup2() failed.\nError", strings);
 	else
@@ -42,6 +46,7 @@ void	raise_child(int **fds, int num_cmd, int argc, t_strings *strings, char **en
 				dup2(*outfile_fd, 1) == -1, errno, "dup2() failed.\nError", strings);
 	exec_status = execve(
 			strings->cmds[num_cmd][0], strings->cmds[num_cmd], envp);
+	printf("%d\n", num_cmd);
 	check_error(
 			exec_status == -1, errno, "execve() failed.\nError", strings);
 }
@@ -89,10 +94,14 @@ void	make_children(
 	pid_t	pids[argc];
 	int		pipe_fd[2];
 	int		num_cmd;
+	int		subtrahend;
 
+	subtrahend = 3;	
+	if (ft_strncmp(strings->argv[1], "here_doc", 9) == 0)
+		subtrahend = 4;	
 	num_cmd = 0;
 	create_pipe(pipe_fd, strings);
-	while (num_cmd < (argc - 3))
+	while (num_cmd < (argc - subtrahend))
 	{
 		if (num_cmd) // if not first command
 		{
@@ -106,7 +115,7 @@ void	make_children(
 		if (pids[num_cmd] == 0)
 			raise_child(
 				(int *[2]){pipe_fd, outfile_fd}, num_cmd, argc, strings, envp);
-		check_exit_status(num_cmd == argc - 4, strings);
+		check_exit_status(num_cmd == argc - (subtrahend + 1), strings);
 		check_error(
 			close(pipe_fd[1]) == -1,
 			errno, "close() failed.\nError", strings);

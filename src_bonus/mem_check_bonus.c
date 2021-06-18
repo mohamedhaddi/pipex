@@ -6,7 +6,7 @@
 /*   By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/10 17:20:31 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/17 04:13:07 by mhaddi           ###   ########.fr       */
+/*   Updated: 2021/06/18 19:17:06 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,15 +49,19 @@ void	free_all_strings(t_strings *strings)
 void	init_all_strings(t_strings *strings, int argc, char **argv)
 {
 	int	i;
+	int	subtrahend;
 
 	strings->cmds = malloc(sizeof(char ***) * (argc - 2));
-	check_error(!strings->cmds, ENOMEM, "malloc() failed.\nerror", strings);
+	check_error(!strings->cmds, ENOMEM, "malloc() failed.\nError", strings);
 	i = 0;
-	while (i < argc - 3)
+	subtrahend = 3;	
+	if (ft_strncmp(strings->argv[1], "here_doc", 9) == 0)
+		subtrahend = 4;	
+	while (i < argc - subtrahend)
 	{
 		strings->cmds[i] = malloc(sizeof(char **) * 4);
 		check_error(
-			!strings->cmds[i], ENOMEM, "malloc() failed.\nerror", strings);
+			!strings->cmds[i], ENOMEM, "malloc() failed.\nError", strings);
 		strings->cmds[i][0] = NULL;
 		i++;
 	}

@@ -6,7 +6,7 @@
 /*   By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/10 17:25:17 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/18 16:58:37 by mhaddi           ###   ########.fr       */
+/*   Updated: 2021/06/18 18:09:48 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,30 +92,23 @@ char    *ft_substr(char const *s, unsigned int start, size_t len)
     return (substr);
 }
 
-char    *ft_strjoin(char *s1, char *s2)
+char    *ft_strjoin(char const *s1, char const *s2)
 {
-    char        *ptr;
-    int         i;
-    int         j;
+    char    *strjoin;
+    size_t  len;
+    size_t  i;
 
-    if (!s2)
-        return (0);
-    if (!s1)
-        s1 = malloc(1);
-    *s1 = '\0';
-    ptr = malloc(ft_strlen(s1) + ft_strlen(s2) + 1);
-    if (!ptr)
-        return (0);
     i = 0;
-    j = 0;
-    while (*(s1 + i) != '\0')
-    {
-        *(ptr + i) = *(s1 + i);
-        i++;
-    }
-    while (*(s2 + j) != '\0')
-        *(ptr + i++) = *(s2 + j++);
-    *(ptr + i) = '\0';
-    free(s1);
-    return (ptr);
+    if (!s1 || !s2)
+        return (NULL);
+    len = ft_strlen(s1) + ft_strlen(s2);
+    strjoin = malloc((sizeof(char) * len) + sizeof(char));
+    if (!strjoin)
+        return (NULL);
+    while (*s1)
+        strjoin[i++] = *(s1++);
+    while (*s2)
+        strjoin[i++] = *(s2++);
+    strjoin[i] = '\0';
+    return (strjoin);
 }

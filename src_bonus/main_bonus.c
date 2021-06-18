@@ -6,7 +6,7 @@
 /*   By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/04 16:50:38 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/17 14:42:18 by mhaddi           ###   ########.fr       */
+/*   Updated: 2021/06/18 19:41:48 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@ int	main(int argc, char **argv, char **envp)
 	int			i;
 	int			subtrahend;
 
+	strings.argv = argv;
 	init_all_strings(&strings, argc, argv);
 	check_error(argc < 5,
 		EINVAL,
@@ -29,10 +30,17 @@ int	main(int argc, char **argv, char **envp)
 	i = 0;
 	subtrahend = 3;	
 	if (ft_strncmp(argv[1], "here_doc", 9) == 0)
+	{
+		check_error(argc < 6,
+				EINVAL,
+				"There should be at least 4 arguments to your program, "
+				"e.g.:\n./pipex file1 cmd1 cmd2 file2\nError",
+				&strings);
 		subtrahend = 4;	
+	}
 	while (i < (argc - subtrahend))
 	{
-		set_command(strings.cmds[i], argv[i + 2], &strings);
+		set_command(strings.cmds[i], argv[i + (subtrahend - 1)], &strings);
 		i++;
 	}
 	open_files((int *[2]){&infile_fd, &outfile_fd}, argc, argv, &strings);

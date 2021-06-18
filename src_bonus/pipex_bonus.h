@@ -6,7 +6,7 @@
 /*   By: mhaddi <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/25 18:57:17 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/18 16:51:56 by mhaddi           ###   ########.fr       */
+/*   Updated: 2021/06/18 19:14:48 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ char			*ft_strdup(const char *s1);
 char			**ft_split(char const *s, char c);
 size_t			ft_strlcpy(char *dst, const char *src, size_t size);
 int				ft_strncmp(const char *s1, const char *s2, size_t n);
-char    		*ft_strjoin(char *s1, char *s2);
+char    *ft_strjoin(char const *s1, char const *s2);
 void			*ft_char_calloc(size_t i);
 char			*ft_strcpy(char *dest, const char *src);
 void			raise_error(int errno_val, char *error_msg);
@@ -65,7 +65,8 @@ void			free_all_strings(t_strings *strings);
 void			init_all_strings(t_strings *strings, int argc, char **argv);
 void			create_pipe(int *pipe_fd, t_strings *strings);
 void			set_command(char **dst_cmd, char *cmd, t_strings *strings);
-int				get_next_line(int fd, char **line);
+char * ft_getline(void);
+//int				get_next_line(int fd, char **line);
 
 
 #endif
