@@ -6,7 +6,7 @@
 /*   By: mhaddi <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/25 18:57:17 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/18 19:14:48 by mhaddi           ###   ########.fr       */
+/*   Updated: 2021/06/18 19:44:51 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,8 +65,7 @@ void			free_all_strings(t_strings *strings);
 void			init_all_strings(t_strings *strings, int argc, char **argv);
 void			create_pipe(int *pipe_fd, t_strings *strings);
 void			set_command(char **dst_cmd, char *cmd, t_strings *strings);
-char * ft_getline(void);
-//int				get_next_line(int fd, char **line);
+char			*ft_getline(void);
 
 
 #endif

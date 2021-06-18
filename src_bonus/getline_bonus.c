@@ -1,63 +1,64 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*   getline_bonus.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/18 15:39:44 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/18 19:23:04 by mhaddi           ###   ########.fr       */
+/*   Updated: 2021/06/18 19:57:00 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex_bonus.h"
-#include <stdio.h>
 
-/*
-int get_next_line(int fd, char **line)
+static char **ft_reallocate(char **old_map, int i)
 {
-	char *tmp;
+    char    **new_map;
+    int     j;
 
-	tmp = malloc(sizeof(tmp) * 2);
-	*tmp = '\0';
-	while (*tmp != '\n' && *tmp != EOF)
-	{
-		if (read(fd, tmp, 1) == -1)
-		{
-			free(tmp);
-			return (-1);
-		}
-		tmp[1] = '\0';
-		*line = ft_strjoin(*line, tmp);
-	}
-	free(tmp);
-	return (0);
+    j = 0;
+    new_map = (char **)malloc((i + 1) * sizeof(char *));
+    while (j < i)
+    {
+        new_map[j] = old_map[j];
+        j++;
+    }
+    new_map[j] = 0;
+    free(old_map);
+    return (new_map);
 }
-*/
 
-char * ft_getline(void) {
-    char * line = malloc(100), * linep = line;
-    size_t lenmax = 100, len = lenmax;
+char *ft_getline(void) {
+    char *line;
+    char *linep;
+    size_t lenmax;
+    size_t len;
     int c;
+
+    line = malloc(100);
+    linep = line;
+    lenmax = 100;
+    len = lenmax;
 
     if(line == NULL)
         return NULL;
 
     for(;;) {
-        c = fgetc(stdin);
+        read(0, &c, 1);
         if(c == EOF)
             break;
 
         if(--len == 0) {
             len = lenmax;
-            char * linen = realloc(linep, lenmax *= 2);
+            char **linen = ft_reallocate(&linep, lenmax *= 2);
 
-            if(linen == NULL) {
+            if(*linen == NULL) {
                 free(linep);
                 return NULL;
             }
-            line = linen + (line - linep);
-            linep = linen;
+            line = *linen + (line - linep);
+            linep = *linen;
         }
 
         if((*line++ = c) == '\n')
