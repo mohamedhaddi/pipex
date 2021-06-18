@@ -6,7 +6,7 @@
 /*   By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/10 17:25:17 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/17 15:27:46 by mhaddi           ###   ########.fr       */
+/*   Updated: 2021/06/18 16:58:37 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,6 +102,7 @@ char    *ft_strjoin(char *s1, char *s2)
         return (0);
     if (!s1)
         s1 = malloc(1);
+    *s1 = '\0';
     ptr = malloc(ft_strlen(s1) + ft_strlen(s2) + 1);
     if (!ptr)
         return (0);
