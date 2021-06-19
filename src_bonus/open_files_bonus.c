@@ -6,7 +6,7 @@
 /*   By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/10 17:29:31 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/19 17:14:09 by mhaddi           ###   ########.fr       */
+/*   Updated: 2021/06/19 18:52:24 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ int	here_doc_loop(t_here_doc_data *here_doc_data, t_arg_data *arg_data)
 		"ft_strjoin() failed.\nError", here_doc_data, arg_data);
 	here_doc_data->limiter_state = 1;
 	if (ft_strncmp(here_doc_data->limiter, here_doc_data->line,
-			ft_strlen(arg_data->argv[2])) == 0)
+			ft_strlen(arg_data->argv[2]) + 1) == 0)
 		return (1);
 	free_and_init(here_doc_data->limiter, &here_doc_data->limiter_state);
 	tmp = ft_strdup(here_doc_data->input);
