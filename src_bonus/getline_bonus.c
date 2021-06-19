@@ -6,7 +6,7 @@
 /*   By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/18 15:39:44 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/19 19:06:08 by mhaddi           ###   ########.fr       */
+/*   Updated: 2021/06/19 19:23:26 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,48 +42,48 @@ void	*ft_memcpy(void *dst, const void *src, size_t n)
 	return (dst - n);
 }
 
-void	*ft_realloc(void *ptr, size_t originalLength, size_t newLength)
+void	*ft_realloc(void *ptr, size_t original_length, size_t new_length)
 {
-	void	*ptrNew;
+	void	*ptr_new;
 
-	if (newLength == 0)
+	if (new_length == 0)
 	{
 		free(ptr);
 		return (NULL);
 	}
 	else if (!ptr)
-		return (malloc(newLength));
-	else if (newLength <= originalLength)
+		return (malloc(new_length));
+	else if (new_length <= original_length)
 		return (ptr);
 	else
 	{
-		if (!ptr || newLength <= originalLength)
+		if (!ptr || new_length <= original_length)
 			return (NULL);
-		ptrNew = malloc(newLength);
-		if (ptrNew)
+		ptr_new = malloc(new_length);
+		if (ptr_new)
 		{
-			ft_memcpy(ptrNew, ptr, originalLength);
+			ft_memcpy(ptr_new, ptr, original_length);
 			free(ptr);
 		}
-		return (ptrNew);
+		return (ptr_new);
 	}
 }
 
 char	*ft_getline(void)
 {
 	char	*line;
-	char	*linep;
-	size_t	lenmax;
+	char	*line_prev;
+	size_t	max_len;
 	size_t	len;
 	int		c;
-	char	*linen;
+	char	*line_next;
 
 	line = malloc(100);
 	if (line == NULL)
 		return (NULL);
-	linep = line;
-	lenmax = 100;
-	len = lenmax;
+	line_prev = line;
+	max_len = 100;
+	len = max_len;
 	while (1)
 	{
 		read(0, &c, 1);
@@ -91,20 +91,20 @@ char	*ft_getline(void)
 			break ;
 		if (--len == 0)
 		{
-			len = lenmax;
-			linen = ft_realloc(linep, len, lenmax * 2);
-			lenmax *= 2;
-			if (linen == NULL)
+			len = max_len;
+			line_next = ft_realloc(line_prev, len, max_len * 2);
+			max_len *= 2;
+			if (line_next == NULL)
 			{
-				free(linep);
+				free(line_prev);
 				return (NULL);
 			}
-			line = linen + (line - linep);
-			linep = linen;
+			line = line_next + (line - line_prev);
+			line_prev = line_next;
 		}
 		if ((*line++ = c) == '\n')
 			break ;
 	}
 	*line = '\0';
-	return (linep);
+	return (line_prev);
 }
