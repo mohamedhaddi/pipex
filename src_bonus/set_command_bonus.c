@@ -6,7 +6,7 @@
 /*   By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/10 17:32:22 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/17 02:54:13 by mhaddi           ###   ########.fr       */
+/*   Updated: 2021/06/19 13:16:21 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,19 +21,19 @@
  * the user's command with all its arguments in a single string, so "/bin/sh"
  * will do all the parsing and of course the exact behavior we want.
  */
-void	set_command(char **dst_cmd, char *cmd, t_strings *strings)
+void	set_command(char **dst_cmd, char *cmd, t_arg_data *arg_data)
 {
 	size_t	cmd_len;
 
 	cmd_len = ft_strlen(cmd) + 1;
 	dst_cmd[0] = malloc(sizeof(char *) * 8);
-	check_error(dst_cmd[0] == NULL, ENOMEM, "malloc() failed.\nError", strings);
+	check_error(dst_cmd[0] == NULL, ENOMEM, "malloc() failed.\nError", arg_data);
 	ft_strlcpy(dst_cmd[0], "/bin/sh", 8);
 	dst_cmd[1] = malloc(sizeof(char *) * 3);
-	check_error(dst_cmd[1] == NULL, ENOMEM, "malloc() failed.\nError", strings);
+	check_error(dst_cmd[1] == NULL, ENOMEM, "malloc() failed.\nError", arg_data);
 	ft_strlcpy(dst_cmd[1], "-c", 3);
 	dst_cmd[2] = malloc(sizeof(char *) * cmd_len);
-	check_error(dst_cmd[2] == NULL, ENOMEM, "malloc() failed.\nError", strings);
+	check_error(dst_cmd[2] == NULL, ENOMEM, "malloc() failed.\nError", arg_data);
 	ft_strlcpy(dst_cmd[2], cmd, cmd_len);
 	dst_cmd[3] = NULL;
 }

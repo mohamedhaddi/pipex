@@ -6,7 +6,7 @@
 /*   By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/10 17:20:31 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/18 19:17:06 by mhaddi           ###   ########.fr       */
+/*   Updated: 2021/06/19 13:08:04 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,32 +40,36 @@ void	free_triple_pointer_and_init(char ***ptr, int *state)
 	*state = 0;
 }
 
-void	free_all_strings(t_strings *strings)
+void	free_all_arg_data(t_arg_data *arg_data)
 {
-	if (strings->cmds_state)
-		free_triple_pointer_and_init(strings->cmds, &strings->cmds_state);
+	if (arg_data->cmds_state)
+		free_triple_pointer_and_init(arg_data->cmds, &arg_data->cmds_state);
 }
 
-void	init_all_strings(t_strings *strings, int argc, char **argv)
+void	init_all_arg_data(t_arg_data *arg_data, int argc, char **argv)
 {
 	int	i;
-	int	subtrahend;
 
-	strings->cmds = malloc(sizeof(char ***) * (argc - 2));
-	check_error(!strings->cmds, ENOMEM, "malloc() failed.\nError", strings);
+	arg_data->cmds_state = 0;
+	arg_data->not_cmds = 3;	
+	if (ft_strncmp(argv[1], "here_doc", 9) == 0)
+		arg_data->not_cmds = 4;	
+	check_error(argc < arg_data->not_cmds + 2,
+		EINVAL,
+		"There should be at least 4 arguments to your pipex program.",
+		arg_data);
+	arg_data->cmds = malloc(sizeof(char ***) * (argc - arg_data->not_cmds + 1));
+	check_error(!arg_data->cmds, ENOMEM, "malloc() failed.\nError", arg_data);
 	i = 0;
-	subtrahend = 3;	
-	if (ft_strncmp(strings->argv[1], "here_doc", 9) == 0)
-		subtrahend = 4;	
-	while (i < argc - subtrahend)
+	while (i < argc - arg_data->not_cmds)
 	{
-		strings->cmds[i] = malloc(sizeof(char **) * 4);
+		arg_data->cmds[i] = malloc(sizeof(char **) * 4);
 		check_error(
-			!strings->cmds[i], ENOMEM, "malloc() failed.\nError", strings);
-		strings->cmds[i][0] = NULL;
+			!arg_data->cmds[i], ENOMEM, "malloc() failed.\nError", arg_data);
+		arg_data->cmds[i][0] = NULL;
 		i++;
 	}
-	strings->cmds[i] = NULL;
-	strings->cmds_state = 1;
-	strings->argv = argv;
+	arg_data->cmds[i] = NULL;
+	arg_data->cmds_state = 1;
+	arg_data->argv = argv;
 }

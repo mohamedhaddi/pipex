@@ -6,7 +6,7 @@
 /*   By: mhaddi <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/25 18:57:17 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/18 19:44:51 by mhaddi           ###   ########.fr       */
+/*   Updated: 2021/06/19 14:20:33 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,12 +24,23 @@
 # define MAXINT 2147483647
 # define BUFFER_SIZE 32
 
-typedef struct s_strings
+typedef struct s_arg_data
 {
 	char		***cmds;
 	int			cmds_state;
 	char		**argv;
-}				t_strings;
+	int			not_cmds;
+}				t_arg_data;
+
+typedef struct	s_here_doc_data
+{
+	char *input;
+	int	input_state;
+	char *line;
+	int	line_state;
+	char *limiter;
+	int	limiter_state;
+}				t_here_doc_data;
 
 size_t			ft_strlen(const char *s);
 char    		*ft_substr(char const *s, unsigned int start, size_t len);
@@ -45,7 +56,7 @@ void			free_double_pointer_and_init(char **ptr, int *state);
 void			free_and_init(char *ptr, int *state);
 void			make_children(
 					int *outfile_fd,
-					t_strings *strings,
+					t_arg_data *arg_data,
 					char **envp,
 					int argc
 					);
@@ -53,18 +64,25 @@ void			check_error(
 					bool is_error,
 					int errno_val,
 					char *error_msg,
-					t_strings *strings
+					t_arg_data *arg_data
 					);
+void	check_error_here_doc(
+			int *error_data,
+			char *error_msg,
+			t_here_doc_data *here_doc_data,
+			t_arg_data *arg_data
+			);
 void			open_files(
 					int **fds,
 					int argc,
-					char **argv,
-					t_strings *strings
+			t_arg_data *arg_data
 					);
-void			free_all_strings(t_strings *strings);
-void			init_all_strings(t_strings *strings, int argc, char **argv);
-void			create_pipe(int *pipe_fd, t_strings *strings);
-void			set_command(char **dst_cmd, char *cmd, t_strings *strings);
+void			free_all_arg_data(t_arg_data *arg_data);
+void			free_all_here_doc_data(t_here_doc_data *here_doc_data);
+void			init_all_arg_data(t_arg_data *arg_data, int argc, char **argv);
+void	init_all_here_doc_data(t_here_doc_data *here_doc_data);
+void			create_pipe(int *pipe_fd, t_arg_data *arg_data);
+void			set_command(char **dst_cmd, char *cmd, t_arg_data *arg_data);
 char			*ft_getline(void);
 
 

@@ -20,6 +20,7 @@ SRCS		= src/main.c \
 			  src/strings.c
 BNS_SRCS	= src_bonus/main_bonus.c \
 			  src_bonus/mem_check_bonus.c \
+			  src_bonus/mem_check_here_doc_bonus.c \
 			  src_bonus/check_error_bonus.c \
 			  src_bonus/set_command_bonus.c \
 			  src_bonus/open_files_bonus.c \

@@ -6,7 +6,7 @@
 /*   By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/04 16:50:38 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/18 19:41:48 by mhaddi           ###   ########.fr       */
+/*   Updated: 2021/06/19 13:58:26 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,37 +14,20 @@
 
 int	main(int argc, char **argv, char **envp)
 {
-	t_strings	strings;
+	t_arg_data	arg_data;
 	int			infile_fd;
 	int			outfile_fd;
 	int			i;
-	int			subtrahend;
 
-	strings.argv = argv;
-	init_all_strings(&strings, argc, argv);
-	check_error(argc < 5,
-		EINVAL,
-		"There should be at least 4 arguments to your program, "
-		"e.g.:\n./pipex file1 cmd1 cmd2 file2\nError",
-		&strings);
+	init_all_arg_data(&arg_data, argc, argv);
 	i = 0;
-	subtrahend = 3;	
-	if (ft_strncmp(argv[1], "here_doc", 9) == 0)
+	while (i < argc - arg_data.not_cmds)
 	{
-		check_error(argc < 6,
-				EINVAL,
-				"There should be at least 4 arguments to your program, "
-				"e.g.:\n./pipex file1 cmd1 cmd2 file2\nError",
-				&strings);
-		subtrahend = 4;	
-	}
-	while (i < (argc - subtrahend))
-	{
-		set_command(strings.cmds[i], argv[i + (subtrahend - 1)], &strings);
+		set_command(arg_data.cmds[i], argv[i + arg_data.not_cmds - 1], &arg_data);
 		i++;
 	}
-	open_files((int *[2]){&infile_fd, &outfile_fd}, argc, argv, &strings);
-	make_children(&outfile_fd, &strings, envp, argc);
-	free_all_strings(&strings);
+	open_files((int *[2]){&infile_fd, &outfile_fd}, argc, &arg_data);
+	make_children(&outfile_fd, &arg_data, envp, argc);
+	free_all_arg_data(&arg_data);
 	return (EXIT_SUCCESS);
 }
