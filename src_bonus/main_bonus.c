@@ -6,7 +6,7 @@
 /*   By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/04 16:50:38 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/19 13:58:26 by mhaddi           ###   ########.fr       */
+/*   Updated: 2021/06/19 15:30:27 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,8 @@ int	main(int argc, char **argv, char **envp)
 	i = 0;
 	while (i < argc - arg_data.not_cmds)
 	{
-		set_command(arg_data.cmds[i], argv[i + arg_data.not_cmds - 1], &arg_data);
+		set_command(
+			arg_data.cmds[i], argv[i + arg_data.not_cmds - 1], &arg_data);
 		i++;
 	}
 	open_files((int *[2]){&infile_fd, &outfile_fd}, argc, &arg_data);

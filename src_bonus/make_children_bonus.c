@@ -6,49 +6,54 @@
 /*   By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/10 17:16:05 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/18 19:35:42 by mhaddi           ###   ########.fr       */
+/*   Updated: 2021/06/19 16:38:52 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex_bonus.h"
 
-void	check_exit_status(int is_last_cmd, t_strings *strings)
+void	check_exit_status(int is_last_cmd, t_arg_data *arg_data)
 {
 	int	child_status;
 
 	check_error(
-		wait(&child_status) == -1, errno, "wait() failed.\nError", strings);
-	if (WIFEXITED(child_status) != 0 && WEXITSTATUS(child_status) != 0 && is_last_cmd)
+		wait(&child_status) == -1, errno, "wait() failed.\nError", arg_data);
+	if (WIFEXITED(child_status) != 0
+		&& WEXITSTATUS(child_status) != 0 && is_last_cmd)
 	{
-		free_all_strings(strings);
+		free_all_arg_data(arg_data);
 		exit(WEXITSTATUS(child_status));
 	}
 }
 
-void	raise_child(int **fds, int num_cmd, int argc, t_strings *strings, char **envp)
+void	raise_child(int **fds, int *cmd_data, t_arg_data *arg_data, char **envp)
 {
 	int	exec_status;
 	int	*pipe_fd;
 	int	*outfile_fd;
-	int		subtrahend;
-
-	subtrahend = 3;	
-	if (ft_strncmp(strings->argv[1], "here_doc", 9) == 0)
-		subtrahend = 4;	
+	int	num_cmd;
+	int	argc;
 
 	pipe_fd = fds[0];
 	outfile_fd = fds[1];
-	if (num_cmd < argc - (subtrahend + 1)) // if not last command
+	num_cmd = cmd_data[0];
+	argc = cmd_data[1];
+	if (num_cmd < argc - arg_data->not_cmds - 1)
 		check_error(
-				dup2(pipe_fd[1], 1) == -1, errno, "dup2() failed.\nError", strings);
+			dup2(pipe_fd[1], 1) == -1, errno, "dup2() failed.\nError", arg_data);
 	else
-		check_error(
-				dup2(*outfile_fd, 1) == -1, errno, "dup2() failed.\nError", strings);
+		check_error(dup2(*outfile_fd, 1) == -1,
+			errno, "dup2() failed.\nError", arg_data);
 	exec_status = execve(
-			strings->cmds[num_cmd][0], strings->cmds[num_cmd], envp);
-	printf("%d\n", num_cmd);
-	check_error(
-			exec_status == -1, errno, "execve() failed.\nError", strings);
+			arg_data->cmds[num_cmd][0], arg_data->cmds[num_cmd], envp);
+	check_error(exec_status == -1, errno, "execve() failed.\nError", arg_data);
+}
+
+void	init_pids(int argc, t_arg_data *arg_data)
+{
+	arg_data->pids = malloc(sizeof(arg_data->pids) * argc);
+	check_error(!arg_data->pids, ENOMEM, "malloc() failed.\nError", arg_data);
+	arg_data->pids_state = 1;
 }
 
 /**
@@ -79,46 +84,41 @@ void	raise_child(int **fds, int num_cmd, int argc, t_strings *strings, char **en
  * In the second iteration, a new child is then forked to run the second command
  * (num_cmd = 1), then, in the new child process, we duplicate the pipe's read
  * end FD to FD 0 (stdin), and duplicate the outfile_fd to FD 1 (stdout), so now
- * when execve() runs the second command, it reads from the read end of the pipe,
- * and outputs to outfile_fd.
+ * when execve() runs the second command, it reads from the read end of the
+ * pipe, and outputs to outfile_fd.
  *
  * We then close the read end of the pipe in the parent process.
  */
 void	make_children(
 			int *outfile_fd,
-			t_strings *strings,
+			t_arg_data *arg_data,
 			char **envp,
 			int argc
 			)
 {
-	pid_t	pids[argc];
 	int		pipe_fd[2];
 	int		num_cmd;
-	int		subtrahend;
 
-	subtrahend = 3;	
-	if (ft_strncmp(strings->argv[1], "here_doc", 9) == 0)
-		subtrahend = 4;	
+	init_pids(argc, arg_data);
+	create_pipe(pipe_fd, arg_data);
 	num_cmd = 0;
-	create_pipe(pipe_fd, strings);
-	while (num_cmd < (argc - subtrahend))
+	while (num_cmd < (argc - arg_data->not_cmds))
 	{
-		if (num_cmd) // if not first command
+		if (num_cmd)
 		{
-			check_error(
-					dup2(pipe_fd[0], 0) == -1, errno, "dup2() failed.\nError", strings);
-			create_pipe(pipe_fd, strings);
+			check_error(dup2(pipe_fd[0], 0) == -1,
+				errno, "dup2() failed.\nError", arg_data);
+			create_pipe(pipe_fd, arg_data);
 		}
-		pids[num_cmd] = fork();
+		arg_data->pids[num_cmd] = fork();
 		check_error(
-			pids[num_cmd] == -1, errno, "fork() failed.\nError", strings);
-		if (pids[num_cmd] == 0)
-			raise_child(
-				(int *[2]){pipe_fd, outfile_fd}, num_cmd, argc, strings, envp);
-		check_exit_status(num_cmd == argc - (subtrahend + 1), strings);
+			arg_data->pids[num_cmd] < 0, errno, "fork() fail.\nError", arg_data);
+		if (arg_data->pids[num_cmd] == 0)
+			raise_child((int *[2]){pipe_fd, outfile_fd},
+				(int [2]){num_cmd, argc}, arg_data, envp);
+		check_exit_status(num_cmd == argc - arg_data->not_cmds - 1, arg_data);
 		check_error(
-			close(pipe_fd[1]) == -1,
-			errno, "close() failed.\nError", strings);
+			close(pipe_fd[1]) == -1, errno, "close() failed.\nError", arg_data);
 		num_cmd++;
 	}
 }

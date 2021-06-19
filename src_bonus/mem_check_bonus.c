@@ -6,7 +6,7 @@
 /*   By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/10 17:20:31 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/19 13:08:04 by mhaddi           ###   ########.fr       */
+/*   Updated: 2021/06/19 16:29:00 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,16 +44,23 @@ void	free_all_arg_data(t_arg_data *arg_data)
 {
 	if (arg_data->cmds_state)
 		free_triple_pointer_and_init(arg_data->cmds, &arg_data->cmds_state);
+	if (arg_data->pids_state)
+	{
+		free(arg_data->pids);
+		arg_data->pids_state = 0;
+	}
 }
 
 void	init_all_arg_data(t_arg_data *arg_data, int argc, char **argv)
 {
 	int	i;
 
+	arg_data->argv = argv;
 	arg_data->cmds_state = 0;
-	arg_data->not_cmds = 3;	
+	arg_data->pids_state = 0;
+	arg_data->not_cmds = 3;
 	if (ft_strncmp(argv[1], "here_doc", 9) == 0)
-		arg_data->not_cmds = 4;	
+		arg_data->not_cmds = 4;
 	check_error(argc < arg_data->not_cmds + 2,
 		EINVAL,
 		"There should be at least 4 arguments to your pipex program.",
@@ -71,5 +78,4 @@ void	init_all_arg_data(t_arg_data *arg_data, int argc, char **argv)
 	}
 	arg_data->cmds[i] = NULL;
 	arg_data->cmds_state = 1;
-	arg_data->argv = argv;
 }
