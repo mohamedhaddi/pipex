@@ -6,7 +6,7 @@
 #    By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/06/12 23:01:40 by mhaddi            #+#    #+#              #
-#    Updated: 2021/06/19 16:42:57 by mhaddi           ###   ########.fr        #
+#    Updated: 2021/06/20 14:00:37 by mhaddi           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -148,6 +148,70 @@ def test_invalid_num_args():
         "cat",
         "grep c",
     ]
+
+    # zero arg
+    usr_test = f'(./pipex) 2>tester_files/errors2'
+    os.system(usr_test)
+    time.sleep(0.5)
+    usr_errors_file = open("tester_files/errors2", "r")
+    usr_errors = usr_errors_file.read()
+    print(
+        "\033[96m" + f"TEST II.{count}: " + "-" * 75 + "\033[0m",
+        usr_test,
+        sep="\n",
+    )
+    print(
+        "\033[96m" + "YOUR ERROR MSGS:" + "\033[0m",
+        usr_errors,
+        sep="\n",
+    )
+    print("\033[03;92m" + "All good? Errors handled and all?" + "\033[0m")
+    print()
+    count += 1
+
+    # one arg
+    inp = infile
+    usr_test = f'(./pipex {inp}) 2>tester_files/errors2'
+    os.system(usr_test)
+    time.sleep(0.5)
+    usr_errors_file = open("tester_files/errors2", "r")
+    usr_errors = usr_errors_file.read()
+    print(
+        "\033[96m" + f"TEST II.{count}: " + "-" * 75 + "\033[0m",
+        usr_test,
+        sep="\n",
+    )
+    print(
+        "\033[96m" + "YOUR ERROR MSGS:" + "\033[0m",
+        usr_errors,
+        sep="\n",
+    )
+    print("\033[03;92m" + "All good? Errors handled and all?" + "\033[0m")
+    print()
+    count += 1
+
+    # two args
+    inp = infile
+    usr_test = f'(./pipex {inp} "{new_cmds[0]}") 2>tester_files/errors2'
+    os.system(usr_test)
+    time.sleep(0.5)
+    usr_errors_file = open("tester_files/errors2", "r")
+    usr_errors = usr_errors_file.read()
+    print(
+        "\033[96m" + f"TEST II.{count}: " + "-" * 75 + "\033[0m",
+        usr_test,
+        sep="\n",
+    )
+    print(
+        "\033[96m" + "YOUR ERROR MSGS:" + "\033[0m",
+        usr_errors,
+        sep="\n",
+    )
+    print("\033[03;92m" + "All good? Errors handled and all?" + "\033[0m")
+    print()
+    count += 1
+
+    # three args
     for cmd1 in new_cmds:
         for cmd2 in new_cmds:
             inp = infile
@@ -169,6 +233,8 @@ def test_invalid_num_args():
             print("\033[03;92m" + "All good? Errors handled and all?" + "\033[0m")
             print()
             count += 1
+
+    # four args
     for cmd1 in new_cmds:
         for cmd2 in new_cmds:
             inp = infile

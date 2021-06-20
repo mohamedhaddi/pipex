@@ -25,8 +25,7 @@ char	*ft_getline(void)
 		read(0, &c, 1);
 		if (c == EOF)
 			return (line);
-		tmp = ft_strdup(line);
-		free(line);
+		tmp = line;
 		line = ft_strjoin(tmp, (char [2]){c, '\0'});
 		free(tmp);
 		if (c == '\n')

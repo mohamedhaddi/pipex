@@ -6,7 +6,7 @@
 /*   By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/10 17:20:31 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/19 16:29:00 by mhaddi           ###   ########.fr       */
+/*   Updated: 2021/06/20 14:15:00 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,12 +59,12 @@ void	init_all_arg_data(t_arg_data *arg_data, int argc, char **argv)
 	arg_data->cmds_state = 0;
 	arg_data->pids_state = 0;
 	arg_data->not_cmds = 3;
-	if (ft_strncmp(argv[1], "here_doc", 9) == 0)
-		arg_data->not_cmds = 4;
-	check_error(argc < arg_data->not_cmds + 2,
-		EINVAL,
-		"There should be at least 4 arguments to your pipex program.",
-		arg_data);
+	if (argc > 2)
+		if (ft_strncmp(argv[1], "here_doc", 9) == 0)
+			arg_data->not_cmds = 4;
+	if (argc < arg_data->not_cmds + 2)
+		raise_error(EINVAL, "There should be at least 4 arguments to your " \
+			"program (or 5 if you're using here_doc).\nError");
 	arg_data->cmds = malloc(sizeof(char ***) * (argc - arg_data->not_cmds + 1));
 	check_error(!arg_data->cmds, ENOMEM, "malloc() failed.\nError", arg_data);
 	i = 0;
