@@ -15,4 +15,4 @@ To use the [tester](./pipex_tester.py), make sure that python3 is installed, the
 
 **Notes:**
 - It only tests the mandatory part.
-- Program must be named pipex.
+- Program (must be named `pipex`) and the tester must be in the same directory.
