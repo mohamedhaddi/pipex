@@ -1,11 +1,11 @@
 # pipex
 
-A project from 42 school's Common Core, its purpose is to implement bash's input/output redirections and pipes.
+A project from 42 school's Common Core, its purpose is to implement bash's input/output redirections and pipes.  
 Read the subject [here](./docs/en.subject.pdf).
 
 ## Build and run
 
-For the mandatory part, run `make all` or `make`, then run the `pipex` program according to the subject.
+For the mandatory part, run `make all` or `make`, then run the `pipex` program according to the subject.  
 For the bonus part, build with `make bonus`.
 
 ## Tester
