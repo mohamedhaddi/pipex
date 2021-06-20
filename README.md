@@ -1,16 +1,18 @@
 # pipex
 
-Project from 42 school's Common Core, its purpose is to implement bash's input/output redirections and pipes.
+A project from 42 school's Common Core, its purpose is to implement bash's input/output redirections and pipes.
 Read the subject [here](./docs/en.subject.pdf).
 
 ## Build and run
 
 For the mandatory part, run `make all` or `make`, then run the `pipex` program according to the subject.
-For bonus, build with `make bonus`.
+For the bonus part, build with `make bonus`.
 
 ## Tester
 
-To use the [tester](./pipex_tester.py), install python3, build the program and run:
+To use the [tester](./pipex_tester.py), make sure that python3 is installed, then build your program and run:
 `python3 pipex_tester.py`
 
-**Note:** It only tests the bonus part.
+**Notes:**
+- It only tests the mandatory part.
+- Program must be named pipex.
