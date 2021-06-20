@@ -23,12 +23,12 @@ void	check_error(
 			bool is_error,
 			int errno_val,
 			char *error_msg,
-			t_strings *strings
+			t_arg_data *arg_data
 			)
 {
 	if (is_error)
 	{
-		free_all_strings(strings);
+		free_all_arg_data(arg_data);
 		raise_error(errno_val, error_msg);
 	}
 }

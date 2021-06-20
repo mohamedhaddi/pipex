@@ -6,11 +6,35 @@
 /*   By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/10 17:29:31 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/19 18:52:24 by mhaddi           ###   ########.fr       */
+/*   Updated: 2021/06/20 09:04:40 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex_bonus.h"
+
+void	create_here_doc_infile(int *infile_fd,
+							t_here_doc_data *here_doc_data,
+							t_arg_data *arg_data)
+{
+	int	write_status;
+	int	close_status;
+
+	free_and_init(here_doc_data->line, &here_doc_data->line_state);
+	free_and_init(here_doc_data->limiter, &here_doc_data->limiter_state);
+	*infile_fd = open(".here_doc_infile", O_WRONLY | O_TRUNC | O_CREAT, 0644);
+	write_status = write(
+			*infile_fd, here_doc_data->input, ft_strlen(here_doc_data->input));
+	check_error_here_doc((int [2]){write_status == -1, errno},
+		"write() failed.\nError",
+		here_doc_data,
+		arg_data);
+	free_and_init(here_doc_data->input, &here_doc_data->input_state);
+	close(*infile_fd);
+	close_status = close(0);
+	check_error(close_status == -1, errno, "close() failed.\nError", arg_data);
+	*infile_fd = open(".here_doc_infile", O_RDONLY);
+	unlink(".here_doc_infile");
+}
 
 int	here_doc_loop(t_here_doc_data *here_doc_data, t_arg_data *arg_data)
 {
@@ -41,29 +65,6 @@ int	here_doc_loop(t_here_doc_data *here_doc_data, t_arg_data *arg_data)
 	return (0);
 }
 
-void	create_here_doc_infile(int *infile_fd,
-							t_here_doc_data *here_doc_data,
-							t_arg_data *arg_data)
-{
-	int	write_status;
-	int	close_status;
-
-	free_and_init(here_doc_data->line, &here_doc_data->line_state);
-	free_and_init(here_doc_data->limiter, &here_doc_data->limiter_state);
-	*infile_fd = open("infile", O_WRONLY | O_TRUNC | O_CREAT, 0644);
-	write_status = write(
-			*infile_fd, here_doc_data->input, ft_strlen(here_doc_data->input));
-	check_error_here_doc((int [2]){write_status == -1, errno},
-		"write() failed.\nError",
-		here_doc_data,
-		arg_data);
-	free_and_init(here_doc_data->input, &here_doc_data->input_state);
-	close(*infile_fd);
-	close_status = close(0);
-	check_error(close_status == -1, errno, "close() failed.\nError", arg_data);
-	*infile_fd = open("infile", O_RDONLY);
-}
-
 void	do_here_doc(int **fds,
 					int argc,
 					t_here_doc_data *here_doc_data,
@@ -91,9 +92,15 @@ void	do_here_doc(int **fds,
 }
 
 /**
- * Release stdin (FD 0) so that it no longer refers to any file,
- * in order to make the next open() call on the input file return
- * FD 0 (lowest FD available).
+ * If it's not here_doc, we just release stdin (FD 0) so that it no longer
+ * refers to any file, in order to make the next open() call on the input
+ * file return FD 0 (lowest FD available).
+ *
+ * If here_doc is called, we call the ft_getline() function in an infinite
+ * loop, joining all the lines we read into the input string, until the
+ * limiter is typed, then, we create the `.here_doc_infile` hidden file 
+ * to write the input string into it, which we then open in the stdin
+ * stream, and remove it afterwards using unlink().
  */
 void	open_files(int **fds, int argc, t_arg_data *arg_data)
 {

@@ -6,7 +6,7 @@
 /*   By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/10 17:29:31 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/17 02:46:31 by mhaddi           ###   ########.fr       */
+/*   Updated: 2021/06/20 10:09:43 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,13 +21,13 @@ void	open_files(
 			int *infile_fd,
 			int *outfile_fd,
 			char **argv,
-			t_strings *strings
+			t_arg_data *arg_data
 			)
 {
 	int	close_status;
 
 	close_status = close(0);
-	check_error(close_status == -1, errno, "close() failed.\nError", strings);
+	check_error(close_status == -1, errno, "close() failed.\nError", arg_data);
 	*infile_fd = open(argv[1], O_RDONLY);
 	*outfile_fd = open(argv[4], O_WRONLY | O_TRUNC | O_CREAT, 0644);
 }

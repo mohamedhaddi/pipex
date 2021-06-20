@@ -6,7 +6,7 @@
 /*   By: mhaddi <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/25 18:57:17 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/16 16:34:03 by mhaddi           ###   ########.fr       */
+/*   Updated: 2021/06/20 10:10:07 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,11 +21,11 @@
 # include <sys/stat.h>
 # include <unistd.h>
 
-typedef struct s_strings
+typedef struct s_arg_data
 {
 	char		***cmds;
 	int			cmds_state;
-}				t_strings;
+}				t_arg_data;
 
 size_t			ft_strlen(const char *s);
 char			*ft_strdup(const char *s1);
@@ -38,25 +38,24 @@ void			free_double_pointer_and_init(char **ptr, int *state);
 void			free_and_init(char *ptr, int *state);
 void			make_children(
 					int *outfile_fd,
-					t_strings *strings,
-					char **envp,
-					int argc
+					t_arg_data *arg_data,
+					char **envp
 					);
 void			check_error(
 					bool is_error,
 					int errno_val,
 					char *error_msg,
-					t_strings *strings
+					t_arg_data *arg_data
 					);
 void			open_files(
 					int *infile_fd,
 					int *outfile_fd,
 					char **argv,
-					t_strings *strings
+					t_arg_data *arg_data
 					);
-void			free_all_strings(t_strings *strings);
-void			init_all_strings(t_strings *strings, int argc);
-void			create_pipe(int *pipe_fd, t_strings *strings);
-void			set_command(char **dst_cmd, char *cmd, t_strings *strings);
+void			free_all_arg_data(t_arg_data *arg_data);
+void			init_all_arg_data(t_arg_data *arg_data, int argc);
+void			create_pipe(int *pipe_fd, t_arg_data *arg_data);
+void			set_command(char **dst_cmd, char *cmd, t_arg_data *arg_data);
 
 #endif

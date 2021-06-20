@@ -6,7 +6,7 @@
 /*   By: mhaddi <mhaddi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/10 17:20:31 by mhaddi            #+#    #+#             */
-/*   Updated: 2021/06/18 19:16:09 by mhaddi           ###   ########.fr       */
+/*   Updated: 2021/06/20 10:09:35 by mhaddi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,27 +40,27 @@ void	free_triple_pointer_and_init(char ***ptr, int *state)
 	*state = 0;
 }
 
-void	free_all_strings(t_strings *strings)
+void	free_all_arg_data(t_arg_data *arg_data)
 {
-	if (strings->cmds_state)
-		free_triple_pointer_and_init(strings->cmds, &strings->cmds_state);
+	if (arg_data->cmds_state)
+		free_triple_pointer_and_init(arg_data->cmds, &arg_data->cmds_state);
 }
 
-void	init_all_strings(t_strings *strings, int argc)
+void	init_all_arg_data(t_arg_data *arg_data, int argc)
 {
 	int	i;
 
-	strings->cmds = malloc(sizeof(char ***) * (argc - 2));
-	check_error(!strings->cmds, ENOMEM, "malloc() failed.\nerror", strings);
+	arg_data->cmds = malloc(sizeof(char ***) * (argc - 2));
+	check_error(!arg_data->cmds, ENOMEM, "malloc() failed.\nerror", arg_data);
 	i = 0;
 	while (i < argc - 3)
 	{
-		strings->cmds[i] = malloc(sizeof(char **) * 4);
+		arg_data->cmds[i] = malloc(sizeof(char **) * 4);
 		check_error(
-			!strings->cmds[i], ENOMEM, "malloc() failed.\nerror", strings);
-		strings->cmds[i][0] = NULL;
+			!arg_data->cmds[i], ENOMEM, "malloc() failed.\nerror", arg_data);
+		arg_data->cmds[i][0] = NULL;
 		i++;
 	}
-	strings->cmds[i] = NULL;
-	strings->cmds_state = 1;
+	arg_data->cmds[i] = NULL;
+	arg_data->cmds_state = 1;
 }
